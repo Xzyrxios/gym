@@ -9,241 +9,239 @@
     *{box-sizing:border-box}
     html{-webkit-text-size-adjust:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1022,#0f172a 30%,#0b1022);color:var(--txt)}
-    .wrap{max-width:1000px;margin:24px auto;padding:16px}
+    .wrap{max-width:1100px;margin:24px auto;padding:16px}
     .card{background:rgba(255,255,255,.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
-    .card h2{margin:0 0 8px}
-    h1{font-size:clamp(22px,3.2vw,34px);margin:0 0 8px}
-    .muted{color:var(--muted)}
-    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    label{font-size:13px;color:var(--muted)}
-    select, input[type="text"], button{font:inherit}
-    select, input[type="text"]{background:#0b1224;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
-    button{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;min-height:40px}
-    button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
-    .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
     .panel{padding:16px}
+    h1{font-size:clamp(22px,3.2vw,34px);margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    a.btn, button.btn{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;min-height:40px;text-decoration:none;display:inline-block}
+    button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
+    select, input{background:#0b1224;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
     .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    @media (max-width:700px){ .controls{grid-template-columns:1fr} }
-    canvas{max-width:100%;height:420px}
-    .hint{font-size:12px;color:#9ae6ff}
+    @media (max-width:800px){ .controls{grid-template-columns:1fr} }
+    .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    canvas{max-width:100%;height:460px}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    th,td{padding:10px 12px;text-align:left}
+    tbody tr{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+    tbody tr td:first-child{border-radius:10px 0 0 10px}
+    tbody tr td:last-child{border-radius:0 10px 10px 0}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card panel">
-      <h1>Statistik <span class="muted">– träningsapp</span></h1>
-      <div class="row" style="justify-content:space-between">
-        <div class="row" style="gap:8px">
-          <span class="pill">Källa: localStorage</span>
-          <span class="pill" id="ghStatus">GitHub: ej ansluten</span>
-        </div>
-        <div class="row" style="gap:8px">
-          <button id="pullBtn" class="ghost" title="Hämta traningslogg.json från GitHub">Hämta ← GitHub</button>
-          <button id="uploadBtn" class="ghost" title="Läs in JSON från datorn">Läs in JSON…</button>
-          <input id="fileInput" type="file" accept="application/json" style="display:none" />
-        </div>
-      </div>
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <a href="index.html" class="btn">← Till appen</a>
+      <span class="pill" id="source">Källa: —</span>
     </div>
 
     <div class="card panel">
+      <h1>Statistik <span class="muted">per övning & set</span></h1>
       <div class="controls">
-        <label>Välj övning
+        <label>Övning
           <select id="exerciseSelect"></select>
         </label>
-        <label>Välj mått
-          <select id="metricSelect">
-            <option value="maxWeight">Max vikt (kg)</option>
-            <option value="bestReps">Bästa reps</option>
-            <option value="volume">Volym (reps×vikt)</option>
-          </select>
-        </label>
-        <label>Filter (frivilligt)
+        <label>Dag (filter)
           <select id="dayFilter">
             <option value="">Alla dagar</option>
-            <option value="1">Endast Dag 1</option>
-            <option value="2">Endast Dag 2</option>
-            <option value="3">Endast Dag 3</option>
+            <option value="1">Dag 1</option>
+            <option value="2">Dag 2</option>
+            <option value="3">Dag 3</option>
+          </select>
+        </label>
+        <label>Visa
+          <select id="metricSelect">
+            <option value="reps">Reps (en linje per set)</option>
+            <option value="weight">Vikt (kg) (en linje per set)</option>
           </select>
         </label>
       </div>
     </div>
 
     <div class="card panel">
-      <h2 style="margin-bottom:6px">Utveckling över tid</h2>
+      <h2 style="margin:0 0 6px">Utveckling över tid</h2>
       <canvas id="chart"></canvas>
-      <div class="hint" id="noData" style="display:none;margin-top:8px">Ingen data hittades för vald övning/mått.</div>
+      <div id="noData" class="muted" style="display:none;margin-top:8px">Ingen data för vald kombination.</div>
     </div>
 
     <div class="card panel">
-      <h2 style="margin-bottom:6px">Senaste datapunkter</h2>
-      <div id="latestList" class="muted">—</div>
+      <h2 style="margin:0 0 6px">Alla pass (datum → set)</h2>
+      <div class="muted" style="margin-bottom:8px">Varje set visas med reps och vikt. Saknas ett set en dag lämnas det tomt.</div>
+      <div id="tableWrap">—</div>
     </div>
   </div>
 
-  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
-    // ====== Konstanter och helpers ======
+    // ====== Källor & läsning ======
     const STORAGE_KEY = 'trainingLogsV1';
     const GH_KEY = 'trainingGithubCfgV1';
-    const readLocal = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const writeLocal = logs => localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+    const GH = { owner:'', repo:'', branch:'main', path:'data/traningslogg.json', token:'' };
+    const sourceEl = document.getElementById('source');
 
-    const uniq = arr => [...new Set(arr)];
-    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
+    function readLocal(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    function writeLocal(logs){ localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
+    function loadGhCfg(){ Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); }
 
-    function computeSeries(logs, exerciseId, metric, dayFilter) {
-      // Plocka ut alla pass som innehåller önskad övning
-      const rows = [];
-      logs.forEach(l => {
-        if(dayFilter && String(l.day) !== String(dayFilter)) return;
-        const e = (l.entries||[]).find(x => x.id === exerciseId || x.exercise === exerciseId);
-        if(!e) return;
-        const sets = e.sets || [];
-        const weights = sets.map(s => Number(s.weight || 0));
-        const reps = sets.map(s => Number(s.reps || 0));
-        const maxWeight = Math.max(0, ...weights);
-        const bestReps = Math.max(0, ...reps);
-        const volume = sets.reduce((acc, s) => acc + (Number(s.weight||0) * Number(s.reps||0)), 0);
-        let y = 0;
-        if(metric === 'maxWeight') y = maxWeight;
-        else if(metric === 'bestReps') y = bestReps;
-        else if(metric === 'volume') y = volume;
-        rows.push({ x: l.date, y });
-      });
-      rows.sort((a,b)=> a.x.localeCompare(b.x));
-      return rows;
+    async function fetchFromGitHub(){
+      loadGhCfg();
+      if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
+      // 1) RAW (publikt repo)
+      try{
+        const raw = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`;
+        const r = await fetch(raw, { cache: 'no-store' });
+        if(r.ok){ const j = await r.json(); sourceEl.textContent = 'Källa: GitHub (RAW)'; return j; }
+      }catch{}
+      // 2) API (privat repo)
+      try{
+        if(!GH.token) return null;
+        const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
+        const res = await fetch(url, { headers:{ 'Accept':'application/vnd.github+json','Authorization':`Bearer ${GH.token}`,'X-GitHub-Api-Version':'2022-11-28' } });
+        if(!res.ok) return null;
+        const obj = await res.json();
+        const json = JSON.parse(decodeURIComponent(escape(atob(obj.content))));
+        sourceEl.textContent = 'Källa: GitHub (API)';
+        return json;
+      }catch{}
+      return null;
     }
 
-    function buildExerciseList(logs) {
+    // ====== UI refs ======
+    const exSel = document.getElementById('exerciseSelect');
+    const daySel = document.getElementById('dayFilter');
+    const metricSel = document.getElementById('metricSelect');
+    const noData = document.getElementById('noData');
+    const tableWrap = document.getElementById('tableWrap');
+    let chart;
+
+    // ====== Hjälpare ======
+    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
+    const uniq = a => [...new Set(a)];
+
+    function listExercises(logs){
       const names = [];
-      logs.forEach(l => (l.entries||[]).forEach(e => names.push(e.id || e.exercise)));
+      (logs||[]).forEach(l => (l.entries||[]).forEach(e => names.push(e.exercise || e.id)));
       return uniq(names);
     }
 
-    // ====== GitHub (frivillig hämtning) ======
-    const GH = { owner:'', repo:'', branch:'main', path:'data/traningslogg.json', token:'' };
-    function loadGhCfg(){ Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); updateGhStatus(); }
-    function updateGhStatus(){
-      const el = document.getElementById('ghStatus');
-      if(GH.owner && GH.repo && GH.path && GH.branch){ el.textContent = 'GitHub: konfigurerad'; el.className='pill'; }
-      else { el.textContent = 'GitHub: ej ansluten'; el.className='pill'; }
-    }
-    async function ghGetFile(){
-      if(!GH.owner||!GH.repo||!GH.path||!GH.branch||!GH.token) throw new Error('Saknar GitHub-inställningar i din träningsapp. Öppna appens Inställningar först.');
-      const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
-      const res = await fetch(url, { headers:{ 'Accept':'application/vnd.github+json','Authorization':`Bearer ${GH.token}`,'X-GitHub-Api-Version':'2022-11-28' } });
-      if(res.status===404) return null;
-      if(!res.ok) throw new Error('GitHub GET misslyckades: '+res.status);
-      return await res.json();
-    }
-
-    async function pullFromGitHub(){
-      try{
-        loadGhCfg();
-        const obj = await ghGetFile();
-        if(!obj){ alert('Filen finns inte i repo ännu. Kör "Synka" i träningsappen först.'); return; }
-        const json = JSON.parse(decodeURIComponent(escape(atob(obj.content))));
-        writeLocal(json);
-        hydrateUI();
-        alert('Hämtat från GitHub!');
-      }catch(e){ alert('Hämtning misslyckades: '+e.message); }
+    // Bygg serier per set-index: #1, #2, #3 ...
+    function buildSetSeries(logs, exerciseName, dayFilter){
+      const byDate = [];
+      let maxSets = 0;
+      (logs||[]).forEach(l => {
+        if(dayFilter && String(l.day) !== String(dayFilter)) return;
+        const entry = (l.entries||[]).find(e => (e.exercise||e.id) === exerciseName);
+        if(!entry) return;
+        const sets = entry.sets||[];
+        maxSets = Math.max(maxSets, sets.length);
+        byDate.push({ date:l.date, sets: sets.map((s,i)=>({ idx:i+1, reps:Number(s.reps||0), weight: s.weight==null? null:Number(s.weight||0) })) });
+      });
+      byDate.sort((a,b)=> a.date.localeCompare(b.date));
+      return { byDate, maxSets };
     }
 
-    // ====== UI och diagram ======
-    let chart;
-    const exSel = document.getElementById('exerciseSelect');
-    const metricSel = document.getElementById('metricSelect');
-    const daySel = document.getElementById('dayFilter');
-    const noData = document.getElementById('noData');
-    const latestList = document.getElementById('latestList');
-
-    function hydrateUI(){
-      const logs = readLocal();
-      // Övningslista
-      const exercises = buildExerciseList(logs);
-      exSel.innerHTML = '';
-      if(!exercises.length){
-        exSel.append(new Option('— Inga övningar funna —',''));
-      } else {
-        exercises.forEach(n => exSel.append(new Option(n, n)));
-      }
-      if(exSel.value === '' && exercises.length){ exSel.value = exercises[0]; }
-      render();
+    function renderTable(byDate, maxSets){
+      if(!byDate.length){ tableWrap.textContent = '—'; return; }
+      const headSets = Array.from({length:maxSets}, (_,i)=>`<th>#${i+1}</th>`).join('');
+      const rows = byDate.map(p => {
+        const cells = Array.from({length:maxSets}, (_,i)=>{
+          const s = p.sets[i];
+          if(!s) return '<td class="muted">—</td>';
+          const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
+          return `<td>${s.reps} reps${w}</td>`;
+        }).join('');
+        return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
+      }).join('');
+      tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    function render(){
-      const logs = readLocal();
-      const exercise = exSel.value;
-      const metric = metricSel.value;
-      const dayFilter = daySel.value;
-      const series = exercise ? computeSeries(logs, exercise, metric, dayFilter) : [];
+    // Färger för set-linjerna (konsekvent mellan renderingar)
+    const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
+
+    function renderChart(byDate, maxSets){
+      const metric = metricSel.value; // reps | weight
+      const labels = byDate.map(p => fmtDate(p.date));
 
       if(chart){ chart.destroy(); chart = null; }
+      if(!byDate.length){ noData.style.display='block'; const ctx=document.getElementById('chart').getContext('2d'); chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{data:[]} ]}}); return; }
+      noData.style.display='none';
 
-      if(!series.length){
-        noData.style.display = 'block';
-        latestList.innerHTML = '—';
-        const ctx = document.getElementById('chart').getContext('2d');
-        chart = new Chart(ctx, { type:'line', data:{ labels:[], datasets:[{label:'', data:[]}] }, options:{responsive:true} });
-        return;
+      const datasets = [];
+      for(let i=0;i<maxSets;i++){
+        const data = byDate.map(p => {
+          const s = p.sets[i];
+          if(!s) return null; // gap om set saknas den dagen
+          return metric==='reps' ? s.reps : (s.weight==null? null : s.weight);
+        });
+        const color = COLORS[i % COLORS.length];
+        datasets.push({
+          label: `Set #${i+1}`,
+          data,
+          spanGaps: true,
+          pointRadius: 3,
+          borderWidth: 2,
+          tension: .25,
+          borderColor: color,
+          backgroundColor: color + '33' // halvtransparent punkter
+        });
       }
-      noData.style.display = 'none';
 
-      const labels = series.map(p => p.x);
-      const data = series.map(p => p.y);
       const ctx = document.getElementById('chart').getContext('2d');
       chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels.map(fmtDate),
-          datasets: [{
-            label: `${exercise} – ${metricSel.options[metricSel.selectedIndex].text}`,
-            data,
-            tension: 0.25,
-            pointRadius: 3,
-            borderWidth: 2,
-            fill: false
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { ticks:{ color:'#cbd5e1' } },
-            y: { ticks:{ color:'#cbd5e1' }, beginAtZero: true }
-          },
-          plugins: {
-            legend: { labels:{ color:'#e5e7eb' } },
-            tooltip: { callbacks:{ label: (ctx)=> `${ctx.parsed.y}` } }
+        type:'line',
+        data:{ labels, datasets },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{ mode:'nearest', intersect:false },
+          scales:{ x:{ ticks:{ color:'#cbd5e1' } }, y:{ beginAtZero:true, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } } },
+          plugins:{
+            legend:{ labels:{ color:'#e5e7eb' } },
+            tooltip:{
+              callbacks:{
+                title: (items)=> items[0]?.label || '',
+                label: (ctx)=>{
+                  const idx = ctx.datasetIndex; const setNo = idx+1; const p = byDate[ctx.dataIndex]; const s = p.sets[idx];
+                  if(!s) return `Set #${setNo}: —`;
+                  const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
+                  return `Set #${setNo}: ${s.reps} reps${w}`;
+                }
+              }
+            }
           }
         }
       });
-
-      // Senaste 5 datapunkter
-      const latest = series.slice(-5).reverse();
-      latestList.innerHTML = latest.map(p => `${fmtDate(p.x)} — ${p.y}`).join('<br/>');
     }
 
-    // ====== Event handlers ======
-    document.getElementById('pullBtn').addEventListener('click', pullFromGitHub);
-    document.getElementById('uploadBtn').addEventListener('click', ()=> document.getElementById('fileInput').click());
-    document.getElementById('fileInput').addEventListener('change', (ev)=>{
-      const f = ev.target.files?.[0];
-      if(!f) return;
-      const r = new FileReader();
-      r.onload = ()=>{ try{ const json = JSON.parse(String(r.result||'[]')); writeLocal(json); hydrateUI(); } catch(e){ alert('Kunde inte läsa JSON: '+e.message); } };
-      r.readAsText(f);
-    });
+    function hydrateUI(){
+      const logs = readLocal();
+      const exercises = listExercises(logs);
+      exSel.innerHTML = '';
+      if(!exercises.length){ exSel.append(new Option('— Inga övningar funna —','')); }
+      else { exercises.forEach(n => exSel.append(new Option(n, n))); }
+      if(exSel.value==='' && exercises.length){ exSel.value = exercises[0]; }
+      update();
+    }
 
-    exSel.addEventListener('change', render);
-    metricSel.addEventListener('change', render);
-    daySel.addEventListener('change', render);
+    function update(){
+      const logs = readLocal();
+      const exercise = exSel.value; const day = daySel.value;
+      const { byDate, maxSets } = exercise ? buildSetSeries(logs, exercise, day) : { byDate:[], maxSets:0 };
+      renderChart(byDate, maxSets);
+      renderTable(byDate, maxSets);
+    }
 
-    // Start
-    loadGhCfg();
-    hydrateUI();
+    exSel.addEventListener('change', update);
+    daySel.addEventListener('change', update);
+    metricSel.addEventListener('change', update);
+
+    (async function init(){
+      sourceEl.textContent = 'Källa: försöker GitHub…';
+      const gh = await fetchFromGitHub();
+      if(gh){ writeLocal(gh); }
+      else { sourceEl.textContent = 'Källa: localStorage'; }
+      hydrateUI();
+    })();
   </script>
 </body>
 </html>
