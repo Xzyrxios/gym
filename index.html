@@ -87,7 +87,6 @@
         </div>
         <div class="row" style="flex-wrap:wrap;gap:6px">
           <button id="saveBtn">Spara</button>
-          <button id="exportBtn" class="ghost">Exportera</button>
           <button id="syncBtn" class="ghost">Synka</button>
           <button id="pullBtn" class="ghost">Hämta</button>
           <button id="cfgBtn" class="ghost">Inställningar</button>
@@ -363,16 +362,6 @@ saveBtn.addEventListener('click', ()=>{
   // uppdatera hintar på aktuell dag
   PROGRAM[selectedDay].forEach(ex=>{ const el=document.getElementById(`hint-${ex.id}`); if(el) updateHint(ex, el); });
   alert('Sparat!');
-});
-
-exportBtn.addEventListener('click', ()=>{
-  const data=JSON.stringify(readLogs(), null, 2);
-  const blob=new Blob([data], {type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='traningslogg.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
 });
 
 /* ===== SÄKER MERGE (ingen radering vid synk) ===== */
