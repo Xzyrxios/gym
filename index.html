@@ -66,7 +66,7 @@
 <body>
   <div class="wrap">
     <div style="margin-bottom:12px">
-      <a href="stats.html" class="button">📊 Statistik</a>
+      <a href="stats.html" class="button" style="background:var(--accent);color:#001018;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:600">📊 Statistik</a>
     </div>
 
     <div class="card">
@@ -274,9 +274,75 @@ saveBtn.addEventListener('click', ()=>{
 
 exportBtn.addEventListener('click', ()=>{ const data=JSON.stringify(readLogs(), null, 2); const blob=new Blob([data], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='traningslogg.json'; a.click(); URL.revokeObjectURL(a.href); });
 
-// GitHub sync
-async function doSync(){ try{ const txt=JSON.stringify(readLogs(), null, 2); loadGhCfg(); await ghPutFile(txt); alert('Uppladdat till GitHub!'); } catch(e){ alert('Synk fel: '+e.message); } }
-async function doPull(){ try{ loadGhCfg(); const obj=await ghGetFile(); if(!obj){ alert('Filen finns inte i repo ännu. Kör "Synka" först.'); return; } const json=JSON.parse(b64DecodeUnicode(obj.content)); writeLogs(json); updateHistory(); if(selectedDay) renderExercises(); alert('Hämtat från GitHub!'); } catch(e){ alert('Hämtningsfel: '+e.message); } }
+// ===== SÄKER MERGE (ingen radering vid synk) =====
+function clone(obj){ return JSON.parse(JSON.stringify(obj||null)); }
+function keyWorkout(w){ return `${w.date}|${w.day}`; }
+function keySet(s){ const w = (s.weight===null||s.weight===undefined)?'':Number(s.weight); return `${Number(s.reps||0)}@${w}`; }
+function keyExercise(e){ return (e.id||e.exercise||'').toString(); }
+function mergeLogs(localArr, remoteArr){
+  const A = Array.isArray(localArr)? clone(localArr):[];
+  const B = Array.isArray(remoteArr)? clone(remoteArr):[];
+  const map = new Map();
+  for(const w of B){ map.set(keyWorkout(w), w); }
+  for(const w of A){
+    const k = keyWorkout(w);
+    if(!map.has(k)){ map.set(k, w); continue; }
+    const base = map.get(k);
+    const byEx = new Map();
+    for(const e of (base.entries||[])){ byEx.set(keyExercise(e), clone(e)); }
+    for(const e of (w.entries||[])){
+      const id = keyExercise(e);
+      if(!byEx.has(id)){ byEx.set(id, clone(e)); continue; }
+      const target = byEx.get(id);
+      const seen = new Set((target.sets||[]).map(keySet));
+      for(const s of (e.sets||[])){
+        const kset = keySet(s);
+        if(!seen.has(kset)){ (target.sets = target.sets||[]).push(clone(s)); seen.add(kset); }
+      }
+    }
+    base.entries = Array.from(byEx.values());
+  }
+  const out = Array.from(map.values());
+  out.sort((a,b)=> String(a.date).localeCompare(String(b.date)) );
+  return out;
+}
+
+// GitHub sync (säker)
+async function doSync(){
+  try{
+    loadGhCfg();
+    // Läs ev befintlig fjärrfil
+    let remote = [];
+    try{
+      const obj = await ghGetFile();
+      if(obj){ remote = JSON.parse(b64DecodeUnicode(obj.content)); }
+    }catch{}
+    const local = readLogs();
+    const merged = mergeLogs(local, remote);
+    const txt = JSON.stringify(merged, null, 2);
+    await ghPutFile(txt);
+    alert('Synk klar (mergad, inget borttaget)!');
+  }catch(e){
+    alert('Synk fel: ' + e.message);
+  }
+}
+
+async function doPull(){
+  try{
+    loadGhCfg();
+    const obj = await ghGetFile();
+    if(!obj){ alert('Filen finns inte i repo ännu. Kör "Synka" först.'); return; }
+    const remote = JSON.parse(b64DecodeUnicode(obj.content));
+    const local = readLogs();
+    const merged = mergeLogs(local, remote);
+    writeLogs(merged);
+    updateHistory();
+    if(selectedDay) renderExercises();
+    alert('Hämtat & sammanslaget från GitHub!');
+  }catch(e){
+    alert('Hämtningsfel: ' + e.message);
+  }
+}
 
 syncBtn.addEventListener('click', doSync);
 pullBtn.addEventListener('click', doPull);
