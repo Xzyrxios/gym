@@ -105,15 +105,16 @@
     </div>
   </div>
 
+  <!-- Inställningar -->
   <div class="modal" id="cfgModal" aria-hidden="true">
     <div class="box">
       <h2 style="margin:0 0 8px;font-size:18px">GitHub-inställningar</h2>
       <div class="grid">
         <label>Ägare <input id="ghOwner" type="text"/></label>
         <label>Repo <input id="ghRepo" type="text"/></label>
-        <label>Branch <input id="ghBranch" type="text" value="main"/></label>
-        <label>Sökväg <input id="ghPath" type="text" value="data/traningslogg.json"/></label>
-        <label style="grid-column:1/-1">Token <input id="ghToken" type="password"/></label>
+        <label>Branch <input id="ghBranch" type="text"/></label>
+        <label>Sökväg <input id="ghPath" type="text"/></label>
+        <label style="grid-column:1/-1">Token <input id="ghToken" type="password" placeholder="ghp_xxx..."/></label>
       </div>
       <div class="row" style="justify-content:flex-end;margin-top:12px;gap:8px">
         <button id="cfgSave">Spara</button>
@@ -157,9 +158,9 @@ const STORAGE_KEY = 'trainingLogsV1';
 const readLogs = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 const writeLogs = logs => localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 
-// ===== GitHub Sync
+// ===== GitHub Sync (förifyllt repo, token via modal första gången)
 const GH_KEY = 'trainingGithubCfgV1';
-const GH = { owner:'', repo:'', branch:'main', path:'data/traningslogg.json', token:'' };
+const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
 function loadGhCfg(){ Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); }
 function saveGhCfg(){ localStorage.setItem(GH_KEY, JSON.stringify(GH)); }
 function b64EncodeUnicode(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -308,7 +309,7 @@ function updateHint(ex, el){
   el.textContent=msg;
 }
 
-// ===== Knappar
+// ===== Knappar & inputs
 const dateInput = document.getElementById('date');
 const saveBtn = document.getElementById('saveBtn');
 const exportBtn = document.getElementById('exportBtn');
@@ -390,11 +391,10 @@ function mergeLogs(localArr, remoteArr){
   return out;
 }
 
-// GitHub sync (säker)
+// GitHub sync (säker merge)
 async function doSync(){
   try{
-    loadGhCfg();
-    // Läs ev. befintlig fjärrfil
+    loadGhCfg(); // läs sparade (inkl token)
     let remote = [];
     try{
       const obj = await ghGetFile();
@@ -430,29 +430,29 @@ async function doPull(){
 syncBtn.addEventListener('click', doSync);
 pullBtn.addEventListener('click', doPull);
 
+// ===== Inställningsmodal
 cfgBtn.addEventListener('click', ()=>{
   loadGhCfg();
-  ghOwner.value=GH.owner||'';
-  ghRepo.value=GH.repo||'';
-  ghBranch.value=GH.branch||'main';
-  ghPath.value=GH.path||'data/traningslogg.json';
-  ghToken.value=GH.token||'';
+  ghOwner.value = GH.owner || 'Xzyrxios';
+  ghRepo.value  = GH.repo  || 'gym';
+  ghBranch.value= GH.branch|| 'main';
+  ghPath.value  = GH.path  || 'data/traningslogg.json';
+  ghToken.value = GH.token || '';
   cfgModal.classList.add('open');
 });
 cfgClose.addEventListener('click', ()=>{ cfgModal.classList.remove('open'); });
 cfgSave.addEventListener('click', ()=>{
-  GH.owner=ghOwner.value.trim();
-  GH.repo=ghRepo.value.trim();
-  GH.branch=ghBranch.value.trim()||'main';
-  GH.path=ghPath.value.trim()||'data/traningslogg.json';
-  GH.token=ghToken.value.trim();
+  GH.owner = ghOwner.value.trim() || 'Xzyrxios';
+  GH.repo  = ghRepo.value.trim()  || 'gym';
+  GH.branch= ghBranch.value.trim()|| 'main';
+  GH.path  = ghPath.value.trim()  || 'data/traningslogg.json';
+  GH.token = ghToken.value.trim(); // kan vara tom tills du fyller i
   saveGhCfg();
   cfgModal.classList.remove('open');
   alert('Inställningar sparade.');
 });
 
 // Init
-const historyBody = document.getElementById('historyBody');
 updateHistory();
 </script>
 </body>
