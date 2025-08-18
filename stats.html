@@ -5,104 +5,338 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Träningsstatistik</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0f172a;color:#e5e7eb}
+    :root { --bg:#0f172a; --muted:#94a3b8; --txt:#e5e7eb; --accent:#22d3ee; }
+    *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1022,#0f172a 30%,#0b1022);color:var(--txt)}
     .wrap{max-width:1100px;margin:24px auto;padding:16px}
-    a.btn{background:#22d3ee;color:#001018;padding:10px 14px;border-radius:12px;font-weight:600;text-decoration:none}
-    .card{background:rgba(255,255,255,.05);border-radius:16px;padding:16px;margin-bottom:20px}
-    h1{margin:0 0 12px}
-    label{display:block;margin-bottom:6px}
-    select{background:#0b1224;color:#e5e7eb;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15)}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:8px 10px;text-align:left}
-    tbody tr:nth-child(even){background:rgba(255,255,255,.05)}
-    canvas{max-width:100%;height:400px}
+    .card{background:rgba(255,255,255,.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
+    .panel{padding:16px}
+    h1{font-size:clamp(22px,3.2vw,34px);margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    a.btn,button.btn{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;min-height:40px;text-decoration:none;display:inline-block}
+    button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
+    select,input{background:#0b1224;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
+    .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    @media (max-width:800px){ .controls{grid-template-columns:1fr} }
+    .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    canvas{max-width:100%;height:460px}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    th,td{padding:10px 12px;text-align:left}
+    tbody tr{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+    tbody tr td:first-child{border-radius:10px 0 0 10px}
+    tbody tr td:last-child{border-radius:0 10px 10px 0}
+    .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <a href="index.html" class="btn">← Tillbaka</a>
-  <div class="card">
-    <h1>📊 Statistik</h1>
-    <label>Välj övning:
-      <select id="exerciseSelect"></select>
-    </label>
-    <label>Visa:
-      <select id="metricSelect">
-        <option value="reps">Reps</option>
-        <option value="weight">Vikt (kg)</option>
-      </select>
-    </label>
+  <div class="wrap">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div class="row" style="gap:8px">
+        <a href="index.html" class="btn">← Till appen</a>
+        <button id="refreshBtn" class="btn ghost">Uppdatera</button>
+      </div>
+      <span class="pill" id="source">Källa: —</span>
+    </div>
+
+    <div class="card panel">
+      <h1>Statistik <span class="muted">per övning & set</span></h1>
+      <div class="controls">
+        <label>Övning
+          <select id="exerciseSelect"></select>
+        </label>
+        <label>Dag (filter)
+          <select id="dayFilter">
+            <option value="">Alla dagar</option>
+            <option value="1">Dag 1</option>
+            <option value="2">Dag 2</option>
+            <option value="3">Dag 3</option>
+          </select>
+        </label>
+        <label>Visa
+          <select id="metricSelect">
+            <option value="reps">Reps (en linje per set)</option>
+            <option value="weight">Vikt (kg) (en linje per set)</option>
+          </select>
+        </label>
+      </div>
+      <div id="hintBox" class="warn" style="display:none;margin-top:12px"></div>
+    </div>
+
+    <div class="card panel">
+      <h2 style="margin:0 0 6px">Utveckling över tid</h2>
+      <canvas id="chart"></canvas>
+      <div id="noData" class="muted" style="display:none;margin-top:8px">Ingen data för vald kombination.</div>
+    </div>
+
+    <div class="card panel">
+      <h2 style="margin:0 0 6px">Alla pass (datum → set)</h2>
+      <div class="muted" style="margin-bottom:8px">Varje set visas med reps och vikt. Saknas ett set en dag lämnas det tomt.</div>
+      <div id="tableWrap">—</div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Utveckling över tid</h2>
-    <canvas id="chart"></canvas>
-  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // ====== LocalStorage & GitHub-konfig ======
+    const STORAGE_KEY = 'trainingLogsV1';
+    const GH_KEY = 'trainingGithubCfgV1';
+    // Samma default som index.html
+    const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
 
-  <div class="card">
-    <h2>Alla pass</h2>
-    <div id="tableWrap">Laddar...</div>
-  </div>
-</div>
+    const sourceEl = document.getElementById('source');
+    const hintBox  = document.getElementById('hintBox');
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const STORAGE_KEY='trainingLogsV1';
-async function loadLogs(){
-  try{
-    const res=await fetch('data/traningslogg.json');
-    if(res.ok) return await res.json();
-  }catch(e){}
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-}
-let chart;
-function renderChart(data,metric,exName){
-  const ctx=document.getElementById('chart').getContext('2d');
-  if(chart) chart.destroy();
-  const setsCount=Math.max(...data.map(e=>e.sets.length));
-  const datasets=[];
-  const colors=['#22d3ee','#f87171','#34d399','#fbbf24','#a78bfa','#fb7185'];
-  for(let i=0;i<setsCount;i++){
-    const points=data.map(d=>({x:d.date,y:d.sets[i]?d.sets[i][metric]:null}));
-    datasets.push({label:`Set ${i+1}`,data:points,borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length],tension:.2});
-  }
-  chart=new Chart(ctx,{type:'line',data:{datasets},options:{
-    responsive:true,parsing:false,
-    scales:{x:{type:'time',time:{unit:'day'},title:{display:true,text:'Datum'}},
-            y:{title:{display:true,text:metric==='reps'?'Reps':'Vikt (kg)'}}},
-    plugins:{title:{display:true,text:exName}}
-  }});
-}
-function renderTable(data,metric){
-  if(!data.length){document.getElementById('tableWrap').textContent='Ingen data.';return;}
-  let html='<table><thead><tr><th>Datum</th><th>Set</th><th>Reps</th><th>Vikt</th></tr></thead><tbody>';
-  data.forEach(d=>{
-    d.sets.forEach((s,i)=>{
-      html+=`<tr><td>${d.date}</td><td>${i+1}</td><td>${s.reps}</td><td>${s.weight??''}</td></tr>`;
-    });
-  });
-  html+='</tbody></table>';
-  document.getElementById('tableWrap').innerHTML=html;
-}
-async function init(){
-  const logs=await loadLogs();
-  const exMap=new Map();
-  logs.forEach(l=>l.entries.forEach(e=>{ if(!exMap.has(e.exercise)) exMap.set(e.exercise,e.id); }));
-  const sel=document.getElementById('exerciseSelect');
-  sel.innerHTML=[...exMap.keys()].map(x=>`<option value="${x}">${x}</option>`).join('');
-  function update(){
-    const ex=sel.value; const metric=document.getElementById('metricSelect').value;
-    const exLogs=[];
-    logs.forEach(l=>{l.entries.forEach(e=>{if(e.exercise===ex)exLogs.push({date:l.date,sets:e.sets});});});
-    exLogs.sort((a,b)=>a.date.localeCompare(b.date));
-    renderChart(exLogs,metric,ex);
-    renderTable(exLogs,metric);
-  }
-  sel.onchange=update;
-  document.getElementById('metricSelect').onchange=update;
-  if(sel.value) update();
-}
-init();
-</script>
+    function readLocal(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    function writeLocal(logs){ localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
+    function loadGhCfg(){ Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); }
+
+    // ====== Hämta från GitHub (RAW eller API) ======
+    async function fetchFromGitHub(){
+      loadGhCfg();
+      if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
+
+      // 1) Publikt repo: RAW
+      try{
+        const raw = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`;
+        const r = await fetch(raw, { cache: 'no-store' });
+        if(r.ok){
+          const j = await r.json();
+          sourceEl.textContent = 'Källa: GitHub (RAW)';
+          return j;
+        }
+      }catch(e){
+        console.debug('RAW fetch misslyckades', e);
+      }
+
+      // 2) Privat repo: API + token
+      try{
+        if(!GH.token) return null;
+        const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
+        const res = await fetch(url, {
+          headers:{
+            'Accept':'application/vnd.github+json',
+            'Authorization':`Bearer ${GH.token}`,
+            'X-GitHub-Api-Version':'2022-11-28'
+          }
+        });
+        if(!res.ok){
+          console.warn('GitHub API fetch fel:', res.status);
+          return null;
+        }
+        const obj  = await res.json();
+        const json = JSON.parse(decodeURIComponent(escape(atob(obj.content))));
+        sourceEl.textContent = 'Källa: GitHub (API)';
+        return json;
+      }catch(e){
+        console.debug('API fetch misslyckades', e);
+      }
+      return null;
+    }
+
+    // ====== Säkra merges (ingen radering) ======
+    const clone = (o)=> JSON.parse(JSON.stringify(o||null));
+    const keyWorkout = (w)=> `${w.date}|${w.day}`;
+    const keyExercise = (e)=> (e.id||e.exercise||'').toString();
+    const keySet = (s)=> `${Number(s.reps||0)}@${(s.weight===null||s.weight===undefined)?'':Number(s.weight)}`;
+
+    function mergeLogs(localArr, remoteArr){
+      const A = Array.isArray(localArr)? clone(localArr):[];
+      const B = Array.isArray(remoteArr)? clone(remoteArr):[];
+      const map = new Map();
+      for(const w of B){ map.set(keyWorkout(w), w); }
+      for(const w of A){
+        const k = keyWorkout(w);
+        if(!map.has(k)){ map.set(k, w); continue; }
+        const base = map.get(k);
+        const byEx = new Map();
+        for(const e of (base.entries||[])){ byEx.set(keyExercise(e), clone(e)); }
+        for(const e of (w.entries||[])){
+          const id = keyExercise(e);
+          if(!byEx.has(id)){ byEx.set(id, clone(e)); continue; }
+          const target = byEx.get(id);
+          const seen = new Set((target.sets||[]).map(keySet));
+          for(const s of (e.sets||[])){
+            const kset = keySet(s);
+            if(!seen.has(kset)){ (target.sets = target.sets||[]).push(clone(s)); seen.add(kset); }
+          }
+        }
+        base.entries = Array.from(byEx.values());
+      }
+      const out = Array.from(map.values());
+      out.sort((a,b)=> String(a.date).localeCompare(String(b.date)));
+      return out;
+    }
+
+    // ====== UI refs ======
+    const exSel = document.getElementById('exerciseSelect');
+    const daySel = document.getElementById('dayFilter');
+    const metricSel = document.getElementById('metricSelect');
+    const noData = document.getElementById('noData');
+    const tableWrap = document.getElementById('tableWrap');
+    const refreshBtn = document.getElementById('refreshBtn');
+    let chart;
+
+    // ====== Hjälpare ======
+    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
+    const uniq = a => [...new Set(a)];
+
+    function listExercises(logs){
+      const names = [];
+      (logs||[]).forEach(l => (l.entries||[]).forEach(e => names.push(e.exercise || e.id)));
+      return uniq(names);
+    }
+
+    // Serien per set-index (#1, #2, #3 ...)
+    function buildSetSeries(logs, exerciseName, dayFilter){
+      const byDate = [];
+      let maxSets = 0;
+      (logs||[]).forEach(l => {
+        if(dayFilter && String(l.day) !== String(dayFilter)) return;
+        const entry = (l.entries||[]).find(e => (e.exercise||e.id) === exerciseName);
+        if(!entry) return;
+        const sets = entry.sets||[];
+        maxSets = Math.max(maxSets, sets.length);
+        byDate.push({
+          date:l.date,
+          sets: sets.map((s,i)=>({ idx:i+1, reps:Number(s.reps||0), weight: s.weight==null? null:Number(s.weight||0) }))
+        });
+      });
+      byDate.sort((a,b)=> a.date.localeCompare(b.date));
+      return { byDate, maxSets };
+    }
+
+    function renderTable(byDate, maxSets){
+      if(!byDate.length){ tableWrap.textContent = '—'; return; }
+      const headSets = Array.from({length:maxSets}, (_,i)=>`<th>#${i+1}</th>`).join('');
+      const rows = byDate.map(p => {
+        const cells = Array.from({length:maxSets}, (_,i)=>{
+          const s = p.sets[i];
+          if(!s) return '<td class="muted">—</td>';
+          const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
+          return `<td>${s.reps} reps${w}</td>`;
+        }).join('');
+        return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
+      }).join('');
+      tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    // Konsekventa färger för set-linjerna
+    const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
+
+    function renderChart(byDate, maxSets){
+      const metric = metricSel.value; // reps | weight
+      const labels = byDate.map(p => fmtDate(p.date));
+
+      if(chart){ chart.destroy(); chart = null; }
+      if(!byDate.length){
+        noData.style.display='block';
+        const ctx=document.getElementById('chart').getContext('2d');
+        chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{data:[]} ]}});
+        return;
+      }
+      noData.style.display='none';
+
+      const datasets = [];
+      for(let i=0;i<maxSets;i++){
+        const data = byDate.map(p => {
+          const s = p.sets[i];
+          if(!s) return null; // gap om set saknas den dagen
+          return metric==='reps' ? s.reps : (s.weight==null? null : s.weight);
+        });
+        const color = COLORS[i % COLORS.length];
+        datasets.push({
+          label: `Set #${i+1}`,
+          data,
+          spanGaps: true,
+          pointRadius: 3,
+          borderWidth: 2,
+          tension: .25,
+          borderColor: color,
+          backgroundColor: color + '33'
+        });
+      }
+
+      const ctx = document.getElementById('chart').getContext('2d');
+      chart = new Chart(ctx, {
+        type:'line',
+        data:{ labels, datasets },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{ mode:'nearest', intersect:false },
+          scales:{ x:{ ticks:{ color:'#cbd5e1' } }, y:{ beginAtZero:true, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } } },
+          plugins:{
+            legend:{ labels:{ color:'#e5e7eb' } },
+            tooltip:{
+              callbacks:{
+                title: (items)=> items[0]?.label || '',
+                label: (ctx)=>{
+                  const idx = ctx.datasetIndex; const setNo = idx+1; const p = byDate[ctx.dataIndex]; const s = p.sets[idx];
+                  if(!s) return `Set #${setNo}: —`;
+                  const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
+                  return `Set #${setNo}: ${s.reps} reps${w}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function hydrateUI(){
+      const logs = readLocal();
+      const exercises = listExercises(logs);
+      const exSel = document.getElementById('exerciseSelect');
+      exSel.innerHTML = '';
+      if(!exercises.length){ exSel.append(new Option('— Inga övningar funna —','')); }
+      else { exercises.forEach(n => exSel.append(new Option(n, n))); }
+      if(exSel.value==='' && exercises.length){ exSel.value = exercises[0]; }
+      update();
+    }
+
+    function update(){
+      const logs = readLocal();
+      const exercise = document.getElementById('exerciseSelect').value;
+      const day = document.getElementById('dayFilter').value;
+      const { byDate, maxSets } = exercise ? buildSetSeries(logs, exercise, day) : { byDate:[], maxSets:0 };
+      renderChart(byDate, maxSets);
+      renderTable(byDate, maxSets);
+    }
+
+    document.getElementById('exerciseSelect').addEventListener('change', update);
+    document.getElementById('dayFilter').addEventListener('change', update);
+    document.getElementById('metricSelect').addEventListener('change', update);
+    refreshBtn.addEventListener('click', initFetch);
+
+    function showHint(msg){
+      hintBox.textContent = msg;
+      hintBox.style.display = 'block';
+    }
+
+    async function initFetch(){
+      hintBox.style.display = 'none';
+      sourceEl.textContent = 'Källa: försöker GitHub…';
+
+      const gh = await fetchFromGitHub();
+      if(gh){
+        const merged = mergeLogs(readLocal(), gh);
+        writeLocal(merged);
+        sourceEl.textContent = 'Källa: GitHub (sammanfogad)';
+      } else {
+        // Ingen GitHub—visa varför och använd localStorage
+        loadGhCfg();
+        if(!GH.token){
+          showHint('Ingen data från GitHub. Om ditt repo är privat behöver du först öppna "Inställningar" i appen (index.html), klistra in ett giltigt token och synka en gång.');
+        } else {
+          showHint('Kunde inte läsa från GitHub just nu. Kontrollera att sökvägen finns: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
+        }
+        sourceEl.textContent = 'Källa: localStorage';
+      }
+      hydrateUI();
+    }
+
+    // Start
+    initFetch();
+  </script>
 </body>
 </html>
