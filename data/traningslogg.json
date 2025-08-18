@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "date": "2025-08-18",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 6,
+            "weight": 40
+          },
+          {
+            "reps": 6,
+            "weight": 40
+          },
+          {
+            "reps": 5,
+            "weight": 40
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 25
+          },
+          {
+            "reps": 10,
+            "weight": 25
+          },
+          {
+            "reps": 8,
+            "weight": 25
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 4,
+            "weight": 3
+          },
+          {
+            "reps": 4,
+            "weight": 3
+          },
+          {
+            "reps": 4,
+            "weight": 3
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 12,
+            "weight": 10
+          },
+          {
+            "reps": 12,
+            "weight": 10
+          },
+          {
+            "reps": 12,
+            "weight": 10
+          }
+        ]
+      }
+    ]
+  }
+]
