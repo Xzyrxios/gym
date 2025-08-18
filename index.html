@@ -191,17 +191,23 @@ async function ghPutFile(jsonText){
 // ===== Hjälpfunktioner
 const fmtRange = r => r[0]===r[1] ? `${r[0]} reps` : `${r[0]}–${r[1]} reps`;
 const todayISO = () => new Date().toISOString().slice(0,10);
-const h = (tag, attrs={}, ...children) => { const el=document.createElement(tag);
+const h = (tag, attrs={}, ...children) => {
+  const el=document.createElement(tag);
   for (const [k,v] of Object.entries(attrs)) {
-    if (k==='class') el.className=v; else if (k==='html') el.innerHTML=v;
-    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k,v);
+    if (k==='class') el.className=v;
+    else if (k==='html') el.innerHTML=v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k,v);
   }
-  for (const ch of children) el.append(ch); return el;
+  for (const ch of children) el.append(ch);
+  return el;
 };
 
 // ===== Dagar
 let selectedDay = null;
-['1','2','3'].forEach(d=>{ document.getElementById(`btn-day-${d}`).addEventListener('click', ()=>selectDay(Number(d))); });
+['1','2','3'].forEach(d=>{
+  document.getElementById(`btn-day-${d}`).addEventListener('click', ()=>selectDay(Number(d)));
+});
 const selectedDayLabel = document.getElementById('selectedDayLabel');
 function selectDay(day){
   selectedDay=day;
@@ -211,7 +217,7 @@ function selectDay(day){
   renderExercises();
 }
 
-// ===== Historik/hint-stöd
+// ===== Historik & hintar
 const historyBody = document.getElementById('historyBody');
 function updateHistory(){
   const logs=readLogs();
@@ -230,13 +236,16 @@ function updateHistory(){
     historyBody.append(box);
   });
 }
+
 function lastFor(exId){
   const logs=readLogs().slice().reverse();
   for(const l of logs){
-    const e=l.entries.find(x=>x.id===exId); if(e) return e;
+    const e=l.entries.find(x=>x.id===exId);
+    if(e) return e;
   }
   return null;
 }
+
 function updateHint(ex, el){
   const last=lastFor(ex.id);
   if(!last){ el.textContent='Tips: logga första passet, så får du förslag nästa gång.'; return; }
@@ -256,7 +265,10 @@ function updateHint(ex, el){
 const exercisesPanel = document.getElementById('exercisesPanel');
 function renderExercises(){
   exercisesPanel.innerHTML='';
-  if(!selectedDay){ exercisesPanel.append(h('p',{class:'empty'},'Välj en dag ovan.')); return; }
+  if(!selectedDay){
+    exercisesPanel.append(h('p',{class:'empty'},'Välj en dag ovan.'));
+    return;
+  }
   const list = PROGRAM[selectedDay];
 
   list.forEach(ex=>{
@@ -275,7 +287,7 @@ function renderExercises(){
     const sets = h('div',{class:'sets'});
     sets.append(head);
 
-    // --- Hämta senaste vikter för övningen (oavsett dag)
+    // Hämta senaste vikter för övningen (oavsett dag)
     const last = lastFor(ex.id);
     const lastWeights = (!ex.bw && last && Array.isArray(last.sets))
       ? last.sets.map(s => (s && s.weight!=null && !isNaN(Number(s.weight))) ? Number(s.weight) : null)
@@ -285,7 +297,6 @@ function renderExercises(){
       : null;
 
     const addSetRow = (i=1, reps='', weight='')=>{
-      // Om inget explicit weight skickas: använd förslag
       let suggested = weight;
       if(suggested==='' && !ex.bw){
         suggested = (lastWeights[i-1]!=null) ? lastWeights[i-1]
@@ -300,7 +311,13 @@ function renderExercises(){
       );
       sets.append(row);
     };
-    function renumber(grid){ let i=1; [...grid.querySelectorAll('.set-row')].forEach(r=>{ r.firstChild.textContent = `#${i++}`; }); }
+
+    function renumber(grid){
+      let i=1;
+      [...grid.querySelectorAll('.set-row')].forEach(r=>{
+        r.firstChild.textContent = `#${i++}`;
+      });
+    }
 
     for(let i=1;i<=3;i++) addSetRow(i);
     const addBtn = h('button',{class:'ghost', type:'button', onclick:()=>{ addSetRow(sets.querySelectorAll('.set-row').length+1); }}, '+ Lägg till set');
@@ -316,6 +333,7 @@ function renderExercises(){
     updateHint(ex, hint);
   });
 }
+
 function ruleText(ex){
   if(!ex.progression) return '';
   const p=ex.progression;
@@ -327,18 +345,9 @@ function ruleText(ex){
 // ===== Knappar & inputs
 const dateInput = document.getElementById('date');
 const saveBtn = document.getElementById('saveBtn');
-const exportBtn = document.getElementById('exportBtn');
 const syncBtn = document.getElementById('syncBtn');
 const pullBtn = document.getElementById('pullBtn');
 const cfgBtn = document.getElementById('cfgBtn');
-const cfgModal = document.getElementById('cfgModal');
-const ghOwner = document.getElementById('ghOwner');
-const ghRepo  = document.getElementById('ghRepo');
-const ghBranch= document.getElementById('ghBranch');
-const ghPath  = document.getElementById('ghPath');
-const ghToken = document.getElementById('ghToken');
-const cfgSave = document.getElementById('cfgSave');
-const cfgClose= document.getElementById('cfgClose');
 
 dateInput.value = todayISO();
 
@@ -433,13 +442,10 @@ async function doPull(){
   }
 }
 
-const syncBtn = document.getElementById('syncBtn');
-const pullBtn = document.getElementById('pullBtn');
 syncBtn.addEventListener('click', doSync);
 pullBtn.addEventListener('click', doPull);
 
 // ===== Inställningsmodal
-const cfgBtn = document.getElementById('cfgBtn');
 const cfgModal = document.getElementById('cfgModal');
 const cfgClose = document.getElementById('cfgClose');
 const cfgSave = document.getElementById('cfgSave');
@@ -464,13 +470,14 @@ cfgSave.addEventListener('click', ()=>{
   GH.repo  = ghRepo.value.trim()  || 'gym';
   GH.branch= ghBranch.value.trim()|| 'main';
   GH.path  = ghPath.value.trim()  || 'data/traningslogg.json';
-  GH.token = ghToken.value.trim(); // läggs in en gång
+  GH.token = ghToken.value.trim(); // lagras en gång
   saveGhCfg();
   cfgModal.classList.remove('open');
   alert('Inställningar sparade.');
 });
 
 // Init
+dateInput.value = todayISO();
 updateHistory();
 </script>
 </body>
