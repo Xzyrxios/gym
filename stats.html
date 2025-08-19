@@ -20,15 +20,20 @@
     .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media (max-width:800px){ .controls{grid-template-columns:1fr} }
     .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    canvas{max-width:100%;height:460px}
-    table{width:100%;border-collapse:separate;border-spacing:0 8px}
-    th,td{padding:10px 12px;text-align:left}
+    /* Diagramhöjd: lagom på desktop & mobil */
+    canvas{max-width:100%;height:clamp(260px,45vh,420px)}
+    @media (max-width:600px){ canvas{height:300px} }
+    /* Tabell */
+    table{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
+    th,td{padding:10px 12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     tbody tr{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
     tbody tr td:first-child{border-radius:10px 0 0 10px}
     tbody tr td:last-child{border-radius:0 10px 10px 0}
+    thead th{position:sticky;top:0;background:#0f172a;z-index:1}
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 
+  <!-- PWA meta (valfritt, gör inget om manifest/sw saknas) -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -78,7 +83,10 @@
 
     <div class="card panel">
       <h2 style="margin:0 0 6px">Alla pass (datum → set)</h2>
-      <div class="muted" style="margin-bottom:8px">Varje set visas med reps och vikt. Saknas ett set en dag lämnas det tomt.</div>
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="muted">Varje set visas med reps och vikt. Saknas ett set en dag lämnas det tomt.</div>
+        <button id="toggleAllBtn" class="btn ghost" style="min-height:34px;padding:6px 10px">Visa alla</button>
+      </div>
       <div id="tableWrap">—</div>
     </div>
   </div>
@@ -97,7 +105,7 @@
     const writeLocal = (logs) => localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
     const loadGhCfg  = () => Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}'));
 
-    // ===== Hämta från GitHub (RAW eller API) =====
+    // ===== Hämta från GitHub (RAW om publikt, annars API om token finns) =====
     async function fetchFromGitHub(){
       loadGhCfg();
       if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
@@ -137,9 +145,9 @@
 
     function mergeLogs(localArr, remoteArr){
       const A = Array.isArray(localArr)? clone(localArr):[];
-      const B = Array.isArray(remoteArr)? clone(remoteArr):[];
+      theB = Array.isArray(remoteArr)? clone(remoteArr):[];
       const map = new Map();
-      for(const w of B){ map.set(keyWorkout(w), w); }
+      for(const w of theB){ map.set(keyWorkout(w), w); }
       for(const w of A){
         const k = keyWorkout(w);
         if(!map.has(k)){ map.set(k, w); continue; }
@@ -170,18 +178,31 @@
     const noData = document.getElementById('noData');
     const tableWrap = document.getElementById('tableWrap');
     const refreshBtn = document.getElementById('refreshBtn');
+    const toggleAllBtn = document.getElementById('toggleAllBtn');
     let chart;
+    let showAllRows = false;
 
     // ===== Hjälpare =====
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
     const uniq = a => [...new Set(a)];
-
     function listExercises(logs){
       const names = [];
       (logs||[]).forEach(l => (l.entries||[]).forEach(e => names.push(e.exercise || e.id)));
       return uniq(names);
     }
 
+    // Fasta y-intervall beroende på skärmbredd (mobil vs desktop)
+    const FIXED_RANGES = {
+      mobile:  { reps: [0, 30],  weight: [0, 200] },
+      desktop: { reps: [0, 50],  weight: [0, 300] }
+    };
+    function getFixedRange(metric){
+      const isMobile = window.innerWidth <= 500;
+      const [min, max] = (isMobile ? FIXED_RANGES.mobile : FIXED_RANGES.desktop)[metric];
+      return { min, max };
+    }
+
+    // Bygg punktserier per set-index (#1, #2, #3 …)
     function buildSetSeries(logs, exerciseName, dayFilter){
       const byDate = [];
       let maxSets = 0;
@@ -204,10 +225,18 @@
       return { byDate, maxSets };
     }
 
+    // Tabell (senaste 12 som standard)
     function renderTable(byDate, maxSets){
-      if(!byDate.length){ tableWrap.textContent = '—'; return; }
+      if(!byDate.length){
+        tableWrap.textContent = '—';
+        toggleAllBtn.style.display = 'none';
+        return;
+      }
+      const DEFAULT_ROWS = 12;
+      const data = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
+
       const headSets = Array.from({length:maxSets}, (_,i)=>`<th>#${i+1}</th>`).join('');
-      const rows = byDate.map(p => {
+      const rows = data.map(p => {
         const cells = Array.from({length:maxSets}, (_,i)=>{
           const s = p.sets[i];
           if(!s) return '<td class="muted">—</td>';
@@ -218,33 +247,24 @@
         return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
       }).join('');
       tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
+
+      // Toggle-knapp
+      if(byDate.length > DEFAULT_ROWS){
+        toggleAllBtn.style.display = 'inline-block';
+        toggleAllBtn.textContent = showAllRows ? 'Visa senaste 12' : 'Visa alla';
+      } else {
+        toggleAllBtn.style.display = 'none';
+      }
     }
 
+    // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    function calcYRange(byDate, maxSets, metric){
-      const vals = [];
-      for(let i=0;i<maxSets;i++){
-        byDate.forEach(p=>{
-          const s = p.sets[i];
-          if(!s) return;
-          const v = metric === 'reps' ? s.reps : s.weight;
-          if(Number.isFinite(v)) vals.push(v);
-        });
-      }
-      if(!vals.length) return null;
-      const min = Math.min(...vals);
-      const max = Math.max(...vals);
-      if(min === max) return { min: Math.max(0, min - 1), max: min + 1 };
-      const pad = Math.max(1, (max - min) * 0.15);
-      return { min: Math.max(0, min - pad), max: max + pad };
-    }
-
+    // Ritar linjediagrammet med fasta y-intervall
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
       const labels = byDate.map(p => fmtDate(p.date));
 
-      // Bygg datasets och håll bara ändliga värden
       const datasets = [];
       let hasAnyFinite = false;
 
@@ -281,7 +301,8 @@
 
       if(chart){ chart.destroy(); chart = null; }
       const ctx = document.getElementById('chart').getContext('2d');
-      const yRange = calcYRange(byDate, maxSets, metric);
+
+      const yRange = getFixedRange(metric); // fasta intervall
 
       chart = new Chart(ctx, {
         type:'line',
@@ -293,11 +314,11 @@
           normalized:true,
           interaction:{ mode:'nearest', intersect:false },
           scales:{
-            x:{ ticks:{ color:'#cbd5e1' } },
+            x:{ ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
             y:{
               beginAtZero:false,
-              min: yRange ? yRange.min : undefined,
-              max: yRange ? yRange.max : undefined,
+              min: yRange.min,
+              max: yRange.max,
               ticks:{ color:'#cbd5e1' },
               title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' }
             }
@@ -347,7 +368,11 @@
     exSel.addEventListener('change', update);
     daySel.addEventListener('change', update);
     metricSel.addEventListener('change', update);
-    document.getElementById('refreshBtn').addEventListener('click', initFetch);
+    refreshBtn.addEventListener('click', initFetch);
+    toggleAllBtn.addEventListener('click', ()=>{
+      showAllRows = !showAllRows;
+      update();
+    });
 
     function showHint(msg){ hintBox.textContent = msg; hintBox.style.display = 'block'; }
 
@@ -376,10 +401,11 @@
     initFetch();
   </script>
 
+  <!-- Registrera service worker om filen finns -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
       });
     }
   </script>
