@@ -4,17 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Träningsstatistik</title>
-
-    <!-- PWA & iOS-app meta -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0f172a">
-
-  <!-- iOS PWA-meta -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Träning">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-
   <style>
     :root { --bg:#0f172a; --muted:#94a3b8; --txt:#e5e7eb; --accent:#22d3ee; }
     *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
@@ -39,6 +28,14 @@
     tbody tr td:last-child{border-radius:0 10px 10px 0}
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
+
+  <!-- PWA meta (valfritt om du redan lagt i index.html) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Träning">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
   <div class="wrap">
@@ -224,35 +221,28 @@
       tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    // Konsekventa färger för set-linjerna
+    // Färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // === FIX: beräkna vettig y-range från faktisk data ===
-    function calcYRange(byDate, maxSets, metric){
+    // Auto-range för vikt (kg)
+    function calcYRange(byDate, maxSets){
       const vals = [];
       for(let i=0;i<maxSets;i++){
         byDate.forEach(p=>{
           const s = p.sets[i];
-          if(!s) return;
-          const v = (metric === 'reps')
-            ? Number(s.reps)
-            : (s.weight==null ? null : Number(s.weight));
-          if(v!=null && !isNaN(v)) vals.push(v);
+          if(!s || s.weight==null || isNaN(Number(s.weight))) return;
+          vals.push(Number(s.weight));
         });
       }
       if(!vals.length) return null;
-
-      const min = Math.min(...vals);
-      const max = Math.max(...vals);
-      if(min === max){
-        return { min: Math.max(0, min - 1), max: min + 1 };
-      }
-      const pad = Math.max(1, (max - min) * 0.15); // 15% luft, minst 1
+      const min = Math.min(...vals), max = Math.max(...vals);
+      if(min === max) return { min: Math.max(0, min - 1), max: min + 1 };
+      const pad = Math.max(1, (max - min) * 0.15);
       return { min: Math.max(0, min - pad), max: max + pad };
     }
 
     function renderChart(byDate, maxSets){
-      const metric = metricSel.value; // reps | weight
+      const metric = metricSel.value; // 'reps' | 'weight'
       const labels = byDate.map(p => fmtDate(p.date));
 
       if(chart){ chart.destroy(); chart = null; }
@@ -269,7 +259,7 @@
       for(let i=0;i<maxSets;i++){
         const data = byDate.map(p => {
           const s = p.sets[i];
-          if(!s) return null; // gap om set saknas den dagen
+          if(!s) return null;
           return metric==='reps'
             ? (isNaN(Number(s.reps)) ? null : Number(s.reps))
             : (s.weight==null || isNaN(Number(s.weight)) ? null : Number(s.weight));
@@ -287,7 +277,19 @@
         });
       }
 
-      const yRange = calcYRange(byDate, maxSets, metric);
+      // Lås 5–25 för reps, auto-range för vikt
+      const yOpts = (metric === 'reps')
+        ? { min: 5, max: 25, beginAtZero: false, ticks:{ color:'#cbd5e1', stepSize:1 }, title:{ display:true, text:'reps' } }
+        : (() => {
+            const r = calcYRange(byDate, maxSets);
+            return {
+              beginAtZero:false,
+              suggestedMin: r ? r.min : undefined,
+              suggestedMax: r ? r.max : undefined,
+              ticks:{ color:'#cbd5e1' },
+              title:{ display:true, text:'kg' }
+            };
+          })();
 
       chart = new Chart(ctx, {
         type:'line',
@@ -297,13 +299,7 @@
           interaction:{ mode:'nearest', intersect:false },
           scales:{
             x:{ ticks:{ color:'#cbd5e1' } },
-            y:{
-              beginAtZero:false,
-              suggestedMin: yRange ? yRange.min : undefined,
-              suggestedMax: yRange ? yRange.max : undefined,
-              ticks:{ color:'#cbd5e1' },
-              title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' }
-            }
+            y: yOpts
           },
           plugins:{
             legend:{ labels:{ color:'#e5e7eb' } },
@@ -366,7 +362,7 @@
       } else {
         loadGhCfg();
         if(!GH.token){
-          showHint('Ingen data från GitHub. Om ditt repo är privat öppna index.html → Inställningar, klistra in token och Synka en gång.');
+          showHint('Ingen data från GitHub. Om ditt repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.');
         } else {
           showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
         }
@@ -378,13 +374,12 @@
     // Start
     initFetch();
   </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
-    });
-  }
-</script>
 
+  <!-- SW-registrering (om du kör PWA) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+    }
+  </script>
 </body>
 </html>
