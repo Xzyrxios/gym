@@ -29,7 +29,6 @@
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 
-  <!-- PWA meta (frivilligt, men bra om du kör appen som PWA) -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -86,7 +85,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // ====== LocalStorage & GitHub-konfig ======
+    // ===== LocalStorage & GitHub-konfig =====
     const STORAGE_KEY = 'trainingLogsV1';
     const GH_KEY = 'trainingGithubCfgV1';
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
@@ -94,27 +93,23 @@
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
 
-    function readLocal(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-    function writeLocal(logs){ localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
-    function loadGhCfg(){ Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); }
+    const readLocal  = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const writeLocal = (logs) => localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+    const loadGhCfg  = () => Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}'));
 
-    // ====== Hämta från GitHub (RAW eller API) ======
+    // ===== Hämta från GitHub (RAW eller API) =====
     async function fetchFromGitHub(){
       loadGhCfg();
       if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
 
-      // 1) Publikt repo: RAW
+      // Publikt repo – RAW
       try{
         const raw = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`;
         const r = await fetch(raw, { cache: 'no-store' });
-        if(r.ok){
-          const j = await r.json();
-          sourceEl.textContent = 'Källa: GitHub (RAW)';
-          return j;
-        }
+        if(r.ok){ sourceEl.textContent = 'Källa: GitHub (RAW)'; return await r.json(); }
       }catch{}
 
-      // 2) Privat repo: API + token
+      // Privat repo – API
       try{
         if(!GH.token) return null;
         const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
@@ -134,7 +129,7 @@
       return null;
     }
 
-    // ====== Säkra merges (ingen radering) ======
+    // ===== Merge (ingen radering) =====
     const clone = (o)=> JSON.parse(JSON.stringify(o||null));
     const keyWorkout  = (w)=> `${w.date}|${w.day}`;
     const keyExercise = (e)=> (e.id||e.exercise||'').toString();
@@ -168,7 +163,7 @@
       return out;
     }
 
-    // ====== UI refs ======
+    // ===== UI refs =====
     const exSel = document.getElementById('exerciseSelect');
     const daySel = document.getElementById('dayFilter');
     const metricSel = document.getElementById('metricSelect');
@@ -177,7 +172,7 @@
     const refreshBtn = document.getElementById('refreshBtn');
     let chart;
 
-    // ====== Hjälpare ======
+    // ===== Hjälpare =====
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
     const uniq = a => [...new Set(a)];
 
@@ -187,7 +182,6 @@
       return uniq(names);
     }
 
-    // Serien per set-index (#1, #2, #3 ...)
     function buildSetSeries(logs, exerciseName, dayFilter){
       const byDate = [];
       let maxSets = 0;
@@ -199,7 +193,11 @@
         maxSets = Math.max(maxSets, sets.length);
         byDate.push({
           date:l.date,
-          sets: sets.map((s,i)=>({ idx:i+1, reps:Number(s.reps||0), weight: s.weight==null? null:Number(s.weight||0) }))
+          sets: sets.map((s,i)=>({
+            idx:i+1,
+            reps: Number(s?.reps ?? NaN),
+            weight: (s?.weight==null ? null : Number(s.weight))
+          }))
         });
       });
       byDate.sort((a,b)=> a.date.localeCompare(b.date));
@@ -213,55 +211,50 @@
         const cells = Array.from({length:maxSets}, (_,i)=>{
           const s = p.sets[i];
           if(!s) return '<td class="muted">—</td>';
-          const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
-          return `<td>${s.reps} reps${w}</td>`;
+          const w = (s.weight==null || !Number.isFinite(s.weight)) ? '' : ` @ ${s.weight} kg`;
+          const r = Number.isFinite(s.reps) ? s.reps : '—';
+          return `<td>${r} reps${w}</td>`;
         }).join('');
         return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
       }).join('');
       tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // === FIX: beräkna vettig y-range från faktisk data ===
     function calcYRange(byDate, maxSets, metric){
       const vals = [];
       for(let i=0;i<maxSets;i++){
         byDate.forEach(p=>{
           const s = p.sets[i];
           if(!s) return;
-          const v = (metric === 'reps')
-            ? Number(s.reps)
-            : (s.weight==null ? null : Number(s.weight));
-          if(v!=null && !isNaN(v)) vals.push(v);
+          const v = metric === 'reps' ? s.reps : s.weight;
+          if(Number.isFinite(v)) vals.push(v);
         });
       }
       if(!vals.length) return null;
       const min = Math.min(...vals);
       const max = Math.max(...vals);
-      if(min === max){
-        return { min: Math.max(0, min - 1), max: min + 1 };
-      }
-      const pad = Math.max(1, (max - min) * 0.15); // 15% luft, minst 1
+      if(min === max) return { min: Math.max(0, min - 1), max: min + 1 };
+      const pad = Math.max(1, (max - min) * 0.15);
       return { min: Math.max(0, min - pad), max: max + pad };
     }
 
     function renderChart(byDate, maxSets){
-      const metric = metricSel.value; // reps | weight
+      const metric = metricSel.value;
       const labels = byDate.map(p => fmtDate(p.date));
 
-      // Bygg datasets
+      // Bygg datasets och håll bara ändliga värden
       const datasets = [];
-      let hasAnyValue = false;
+      let hasAnyFinite = false;
+
       for(let i=0;i<maxSets;i++){
         const data = byDate.map(p => {
           const s = p.sets[i];
           if(!s) return null;
-          const v = metric==='reps'
-            ? (isNaN(Number(s.reps)) ? null : Number(s.reps))
-            : (s.weight==null || isNaN(Number(s.weight)) ? null : Number(s.weight));
-          if(v!=null) hasAnyValue = true;
+          const raw = metric==='reps' ? s.reps : s.weight;
+          const v = Number.isFinite(raw) ? raw : null;
+          if(v!=null) hasAnyFinite = true;
           return v;
         });
         const color = COLORS[i % COLORS.length];
@@ -269,6 +262,7 @@
           label: `Set #${i+1}`,
           data,
           spanGaps: true,
+          skipNull: true,
           pointRadius: 3,
           borderWidth: 2,
           tension: .25,
@@ -277,8 +271,7 @@
         });
       }
 
-      // Om det inte finns ett enda värde → visa "Ingen data" och rita inte
-      if(!hasAnyValue){
+      if(!hasAnyFinite){
         noData.style.display='block';
         if(chart){ chart.destroy(); chart=null; }
         return;
@@ -286,10 +279,8 @@
         noData.style.display='none';
       }
 
-      // Skapa/återskapa diagram
       if(chart){ chart.destroy(); chart = null; }
       const ctx = document.getElementById('chart').getContext('2d');
-
       const yRange = calcYRange(byDate, maxSets, metric);
 
       chart = new Chart(ctx, {
@@ -297,19 +288,22 @@
         data:{ labels, datasets },
         options:{
           responsive:true, maintainAspectRatio:false,
-          animation: { duration: 0 }, // snabb & stabil
+          animation:false,
+          parsing:false,
+          normalized:true,
           interaction:{ mode:'nearest', intersect:false },
           scales:{
             x:{ ticks:{ color:'#cbd5e1' } },
             y:{
               beginAtZero:false,
-              suggestedMin: yRange ? yRange.min : undefined,
-              suggestedMax: yRange ? yRange.max : undefined,
+              min: yRange ? yRange.min : undefined,
+              max: yRange ? yRange.max : undefined,
               ticks:{ color:'#cbd5e1' },
               title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' }
             }
           },
           plugins:{
+            filler:false,
             legend:{ labels:{ color:'#e5e7eb' } },
             tooltip:{
               callbacks:{
@@ -318,10 +312,11 @@
                   const idx = ctx.datasetIndex; const setNo = idx+1;
                   const p = byDate[ctx.dataIndex]; const s = p.sets[idx];
                   if(!s) return `Set #${setNo}: —`;
-                  const w = (s.weight==null || isNaN(s.weight)) ? '' : ` @ ${s.weight} kg`;
-                  return metric==='reps'
-                    ? `Set #${setNo}: ${s.reps} reps${w}`
-                    : `Set #${setNo}: ${s.weight ?? '—'} kg`;
+                  const w = (Number.isFinite(s.weight)) ? ` @ ${s.weight} kg` : '';
+                  if(metric==='reps'){
+                    return Number.isFinite(s.reps) ? `Set #${setNo}: ${s.reps} reps${w}` : `Set #${setNo}: —`;
+                  }
+                  return Number.isFinite(s.weight) ? `Set #${setNo}: ${s.weight} kg` : `Set #${setNo}: —`;
                 }
               }
             }
@@ -333,7 +328,6 @@
     function hydrateUI(){
       const logs = readLocal();
       const exercises = listExercises(logs);
-      const exSel = document.getElementById('exerciseSelect');
       exSel.innerHTML = '';
       if(!exercises.length){ exSel.append(new Option('— Inga övningar funna —','')); }
       else { exercises.forEach(n => exSel.append(new Option(n, n))); }
@@ -343,22 +337,19 @@
 
     function update(){
       const logs = readLocal();
-      const exercise = document.getElementById('exerciseSelect').value;
-      const day = document.getElementById('dayFilter').value;
+      const exercise = exSel.value;
+      const day = daySel.value;
       const { byDate, maxSets } = exercise ? buildSetSeries(logs, exercise, day) : { byDate:[], maxSets:0 };
       renderChart(byDate, maxSets);
       renderTable(byDate, maxSets);
     }
 
-    document.getElementById('exerciseSelect').addEventListener('change', update);
-    document.getElementById('dayFilter').addEventListener('change', update);
-    document.getElementById('metricSelect').addEventListener('change', update);
+    exSel.addEventListener('change', update);
+    daySel.addEventListener('change', update);
+    metricSel.addEventListener('change', update);
     document.getElementById('refreshBtn').addEventListener('click', initFetch);
 
-    function showHint(msg){
-      hintBox.textContent = msg;
-      hintBox.style.display = 'block';
-    }
+    function showHint(msg){ hintBox.textContent = msg; hintBox.style.display = 'block'; }
 
     async function initFetch(){
       hintBox.style.display = 'none';
@@ -372,7 +363,7 @@
       } else {
         loadGhCfg();
         if(!GH.token){
-          showHint('Ingen data från GitHub. Om ditt repo är privat öppna index.html → Inställningar, klistra in token och Synka en gång.');
+          showHint('Ingen data från GitHub. Om repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.');
         } else {
           showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
         }
@@ -385,7 +376,6 @@
     initFetch();
   </script>
 
-  <!-- (frivilligt) Service Worker-registrering om du kör PWA -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
