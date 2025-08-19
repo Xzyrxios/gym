@@ -491,5 +491,13 @@ cfgSave.addEventListener('click', ()=>{
 dateInput.value = todayISO();
 updateHistory();
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>
+
 </body>
 </html>
