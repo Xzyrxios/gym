@@ -7,27 +7,20 @@
   <style>
     :root { --bg:#0f172a; --muted:#94a3b8; --txt:#e5e7eb; --accent:#22d3ee; }
     *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1022,#0f172a 30%,#0b1022);color:var(--txt)}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0f172a;color:var(--txt)}
     .wrap{max-width:1100px;margin:24px auto;padding:16px}
-    .card{background:rgba(255,255,255,.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
+    .card{background:#11182780;backdrop-filter:blur(6px);border:1px solid #ffffff1a;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
     .panel{padding:16px}
     h1{font-size:clamp(22px,3.2vw,34px);margin:0 0 10px}
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     a.btn,button.btn{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;min-height:40px;text-decoration:none;display:inline-block}
-    button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
-    select,input{background:#0b1224;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
+    button.ghost{background:transparent;color:var(--txt);border:1px solid #ffffff2e}
+    select{background:#0b1224;border:1px solid #ffffff1f;border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
     .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media (max-width:800px){ .controls{grid-template-columns:1fr} }
-    .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    .pill{display:inline-block;border:1px solid #ffffff2e;border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
     canvas{max-width:100%;height:clamp(260px,45vh,420px);touch-action: pan-y;}
-    @media (max-width:600px){ canvas{height:300px} }
-    table{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
-    th,td{padding:10px 12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    tbody tr{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
-    tbody tr td:first-child{border-radius:10px 0 0 10px}
-    tbody tr td:last-child{border-radius:0 10px 10px 0}
-    thead th{position:sticky;top:0;background:#0f172a;z-index:1}
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 
@@ -79,15 +72,6 @@
       <canvas id="chart"></canvas>
       <div id="noData" class="muted" style="display:none;margin-top:8px">Ingen data för vald kombination.</div>
     </div>
-
-    <div class="card panel">
-      <h2 style="margin:0 0 6px">Alla pass (datum → set)</h2>
-      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div class="muted">Varje set visas med reps och vikt. Saknas ett set en dag lämnas det tomt.</div>
-        <button id="toggleAllBtn" class="btn ghost" style="min-height:34px;padding:6px 10px">Visa alla</button>
-      </div>
-      <div id="tableWrap">—</div>
-    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -95,7 +79,7 @@
     const STORAGE_KEY = 'trainingLogsV1';
     const GH_KEY = 'trainingGithubCfgV1';
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
-    const BUILD_VERSION = 'stats.html v2025-09-16-BAR';
+    const BUILD_VERSION = 'stats.html v2025-09-16-BAR-FIXED';
 
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
@@ -116,7 +100,7 @@
         if(!GH.token) return null;
         const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
         const res = await fetch(url, {
-          headers:{ 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${GH.token}`, 'X-GitHub-Api-Version':'2022-11-28' }
+          headers:{ 'Accept':'application/vnd.github+json','Authorization':`Bearer ${GH.token}`,'X-GitHub-Api-Version':'2022-11-28' }
         });
         if(!res.ok) return null;
         const obj  = await res.json();
@@ -164,19 +148,11 @@
     const daySel = document.getElementById('dayFilter');
     const metricSel = document.getElementById('metricSelect');
     const noData = document.getElementById('noData');
-    const tableWrap = document.getElementById('tableWrap');
     const refreshBtn = document.getElementById('refreshBtn');
-    const toggleAllBtn = document.getElementById('toggleAllBtn');
     let chart;
-    let showAllRows = false;
 
-    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
-    const uniq = a => [...new Set(a)];
-    function listExercises(logs){
-      const names = [];
-      (logs||[]).forEach(l => (l.entries||[]).forEach(e => names.push(e.exercise || e.id)));
-      return uniq(names);
-    }
+    const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
+    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE', { month:'short', day:'numeric' });
 
     const FIXED_RANGES = { mobile:{ reps:[0,30], weight:[0,200] }, desktop:{ reps:[0,50], weight:[0,300] } };
     function getFixedRange(metric){ const isMobile = window.innerWidth <= 500; const [min,max] = (isMobile? FIXED_RANGES.mobile: FIXED_RANGES.desktop)[metric]; return {min,max}; }
@@ -190,30 +166,18 @@
         if(!entry) return;
         const sets = entry.sets||[];
         maxSets = Math.max(maxSets, sets.length);
-        byDate.push({ date:l.date, sets: sets.map((s,i)=>({ idx:i+1, reps:Number(s?.reps ?? NaN), weight:(s?.weight==null? null: Number(s.weight)) })) });
+        byDate.push({
+          date:l.date,
+          sets: sets.map((s,i)=>({
+            idx:i+1,
+            reps: Number(s?.reps ?? NaN),
+            weight: (s?.weight==null ? null : Number(s.weight))
+          }))
+        });
       });
       byDate.sort((a,b)=> a.date.localeCompare(b.date));
       return { byDate, maxSets };
     }
-
-    function renderTable(byDate, maxSets){
-      if(!byDate.length){ tableWrap.textContent = '—'; toggleAllBtn.style.display = 'none'; return; }
-      const DEFAULT_ROWS = 12; const data = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
-      const headSets = Array.from({length:maxSets}, (_,i)=>`<th>#${i+1}</th>`).join('');
-      const rows = data.map(p => {
-        const cells = Array.from({length:maxSets}, (_,i)=>{
-          const s = p.sets[i]; if(!s) return '<td class="muted">—</td>';
-          const w = (s.weight==null || !Number.isFinite(s.weight)) ? '' : ` @ ${s.weight} kg`;
-          const r = Number.isFinite(s.reps) ? s.reps : '—';
-          return `<td>${r} reps${w}</td>`;
-        }).join('');
-        return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
-      }).join('');
-      tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
-      if(byDate.length > DEFAULT_ROWS){ toggleAllBtn.style.display='inline-block'; toggleAllBtn.textContent = showAllRows ? 'Visa senaste 12' : 'Visa alla'; } else { toggleAllBtn.style.display='none'; }
-    }
-
-    const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
@@ -231,35 +195,29 @@
         });
         if(!data.some(v => Number.isFinite(v))) continue;
         const color = COLORS[i % COLORS.length];
-        datasets.push({
-          type: 'bar',
-          label: `Set #${i+1}`,
-          data,
-          backgroundColor: color + 'aa',
-          borderColor: color,
-          borderWidth: 1,
-          barPercentage: 0.9,
-          categoryPercentage: 0.8,
-        });
+        datasets.push({ type:'bar', label:`Set #${i+1}`, data, backgroundColor: color + 'cc', borderColor: color, borderWidth:1, barPercentage:.9, categoryPercentage:.8 });
       }
 
-      if(chart){ chart.destroy(); chart = null; }
+      if(chart){ chart.destroy(); chart=null; }
       if(datasets.length === 0){ noData.style.display='block'; return; } else { noData.style.display='none'; }
 
+      const {min,max} = getFixedRange(metric);
       const ctx = document.getElementById('chart').getContext('2d');
-      const yRange = getFixedRange(metric);
-
       chart = new Chart(ctx, {
         data: { labels, datasets },
         options: {
           responsive:true, maintainAspectRatio:false,
           scales: {
             x: { type:'category', stacked:false, ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
-            y: { min:yRange.min, max:yRange.max, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } }
+            y: { min, max, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } }
           },
           plugins: {
             legend: { labels: { color:'#e5e7eb' } },
-            tooltip: { callbacks: { label: (ctx)=> `Set #${ctx.datasetIndex+1}: ${ctx.parsed.y} ${metric==='reps'?'reps':'kg'}` } }
+            tooltip: {
+              callbacks: {
+                label: (ctx)=> `Set #${ctx.datasetIndex+1}: ${ctx.parsed.y} ${metric==='reps'?'reps':'kg'}`
+              }
+            }
           }
         }
       });
@@ -267,36 +225,55 @@
 
     function hydrateUI(){
       const logs = readLocal();
-      const exercises = listExercises(logs);
+      const names = [...new Set((logs||[]).flatMap(l => (l.entries||[]).map(e => e.exercise || e.id)))];
       exSel.innerHTML = '';
-      if(!exercises.length){ exSel.append(new Option('— Inga övningar funna —','')); }
-      else { exercises.forEach(n => exSel.append(new Option(n, n))); }
-      if(exSel.value==='' && exercises.length){ exSel.value = exercises[0]; }
-      update();
+      names.forEach(n => exSel.append(new Option(n, n)));
+      if(!exSel.value && names.length) exSel.value = names[0];
+      update(); // första render
     }
 
     function update(){
       const logs = readLocal();
+
+      // bygg listan om den är tom (t.ex. första körningen)
+      if(exSel.options.length === 0){
+        const names = [...new Set((logs||[]).flatMap(l => (l.entries||[]).map(e => e.exercise || e.id)))];
+        names.forEach(n => exSel.append(new Option(n, n)));
+      }
+
+      // LÄS värdet EFTER ev. populering
       const exercise = exSel.value;
       const day = daySel.value;
+
       const { byDate, maxSets } = exercise ? buildSetSeries(logs, exercise, day) : { byDate:[], maxSets:0 };
       renderChart(byDate, maxSets);
-      renderTable(byDate, maxSets);
     }
 
+    // Lyssnare (saknades tidigare)
     exSel.addEventListener('change', update);
     daySel.addEventListener('change', update);
     metricSel.addEventListener('change', update);
     refreshBtn.addEventListener('click', initFetch);
-    toggleAllBtn.addEventListener('click', ()=>{ showAllRows = !showAllRows; update(); });
 
     function showHint(msg){ hintBox.textContent = msg; hintBox.style.display = 'block'; }
 
     async function initFetch(){
-      hintBox.style.display = 'none'; sourceEl.textContent = 'Källa: försöker GitHub…';
+      hintBox.style.display = 'none';
+      sourceEl.textContent = 'Källa: försöker GitHub…';
       const gh = await fetchFromGitHub();
-      if(gh){ const merged = mergeLogs(readLocal(), gh); writeLocal(merged); sourceEl.textContent = `Källa: GitHub (sammanfogad) · ${BUILD_VERSION}`; }
-      else { loadGhCfg(); if(!GH.token){ showHint('Ingen data från GitHub. Om repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.'); } else { showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`); } sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`; }
+      if(gh){
+        const merged = mergeLogs(readLocal(), gh);
+        writeLocal(merged);
+        sourceEl.textContent = `Källa: GitHub (sammanfogad) · ${BUILD_VERSION}`;
+      } else {
+        loadGhCfg();
+        if(!GH.token){
+          showHint('Ingen data från GitHub. Om repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.');
+        } else {
+          showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
+        }
+        sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`;
+      }
       hydrateUI();
     }
 
@@ -305,7 +282,11 @@
   </script>
 
   <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
+      });
+    }
   </script>
 </body>
 </html>
