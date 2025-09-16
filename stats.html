@@ -33,11 +33,11 @@
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 
-  <!-- PWA meta (valfritt, gör inget om manifest/sw saknas) -->
+  <!-- PWA meta -->
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Träning">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -101,7 +101,7 @@
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
 
     // Versionsinfo för felsökning (syns i UI + console)
-    const BUILD_VERSION = 'stats.html v2025-09-16-LOCKEDWINDOW';
+    const BUILD_VERSION = 'stats.html v2025-09-16-CATEGORY';
 
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
@@ -150,7 +150,7 @@
 
     function mergeLogs(localArr, remoteArr){
       const A = Array.isArray(localArr)? clone(localArr):[];
-      const B = Array.isArray(remoteArr)? clone(remoteArr):[]; // FIX: deklarera korrekt
+      const B = Array.isArray(remoteArr)? clone(remoteArr):[];
       const map = new Map();
       for(const w of B){ map.set(keyWorkout(w), w); }
       for(const w of A){
@@ -185,7 +185,7 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const toggleAllBtn = document.getElementById('toggleAllBtn');
     let chart;
-    let showAllRows = false; // påverkar BARA tabellen i denna build
+    let showAllRows = false; // påverkar bara tabellen
 
     // ===== Hjälpare =====
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
@@ -253,7 +253,6 @@
       }).join('');
       tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
 
-      // Toggle-knapp
       if(byDate.length > DEFAULT_ROWS){
         toggleAllBtn.style.display = 'inline-block';
         toggleAllBtn.textContent = showAllRows ? 'Visa senaste 12' : 'Visa alla';
@@ -265,11 +264,11 @@
     // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // Ritar linjediagrammet med fasta y-intervall + HÅRT LÅST x-fönster (12 punkter)
+    // Ritar linjediagrammet med fasta y-intervall + hårt låst x-fönster + kategorisk x-axel
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
 
-      // Hårt lås: diagrammet visar alltid de sista 12 punkterna oavsett tabellens läge
+      // Hårt lås: diagrammet visar alltid de sista 12 punkterna
       const DEFAULT_CHART_ROWS = 12;
       const dataWindow = byDate.slice(-DEFAULT_CHART_ROWS);
 
@@ -291,7 +290,7 @@
         datasets.push({
           label: `Set #${i+1}`,
           data,
-          spanGaps: true,
+          spanGaps: false, // rita inte över luckor
           pointRadius: 3,
           borderWidth: 2,
           tension: .25,
@@ -323,7 +322,7 @@
           normalized:true,
           interaction:{ mode:'nearest', intersect:false },
           scales:{
-            x:{ ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
+            x:{ type:'category', ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
             y:{
               beginAtZero:false,
               min: yRange.min,
@@ -340,7 +339,7 @@
                 title: (items)=> items[0]?.label || '',
                 label: (ctx)=>{
                   const idx = ctx.datasetIndex; const setNo = idx+1;
-                  const p = dataWindow[ctx.dataIndex]; const s = p.sets[idx]; // använd dataWindow
+                  const p = dataWindow[ctx.dataIndex]; const s = p.sets[idx];
                   if(!s) return `Set #${setNo}: —`;
                   const w = (Number.isFinite(s.weight)) ? ` @ ${s.weight} kg` : '';
                   if(metric==='reps'){
@@ -379,8 +378,7 @@
     metricSel.addEventListener('change', update);
     refreshBtn.addEventListener('click', initFetch);
     toggleAllBtn.addEventListener('click', ()=>{
-      showAllRows = !showAllRows; // påverkar bara tabellen
-      renderTable(buildSetSeries(readLocal(), exSel.value, daySel.value).byDate, 0); // snabb upprepning för tabell
+      showAllRows = !showAllRows;
       update();
     });
 
