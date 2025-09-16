@@ -21,7 +21,7 @@
     @media (max-width:800px){ .controls{grid-template-columns:1fr} }
     .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
     /* Diagramhöjd: lagom på desktop & mobil */
-    canvas{max-width:100%;height:clamp(260px,45vh,420px)}
+    canvas{max-width:100%;height:clamp(260px,45vh,420px);touch-action: pan-y;}
     @media (max-width:600px){ canvas{height:300px} }
     /* Tabell */
     table{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
@@ -145,9 +145,9 @@
 
     function mergeLogs(localArr, remoteArr){
       const A = Array.isArray(localArr)? clone(localArr):[];
-      theB = Array.isArray(remoteArr)? clone(remoteArr):[];
+      const B = Array.isArray(remoteArr)? clone(remoteArr):[]; // FIX: deklarera korrekt
       const map = new Map();
-      for(const w of theB){ map.set(keyWorkout(w), w); }
+      for(const w of B){ map.set(keyWorkout(w), w); }
       for(const w of A){
         const k = keyWorkout(w);
         if(!map.has(k)){ map.set(k, w); continue; }
@@ -260,16 +260,21 @@
     // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // Ritar linjediagrammet med fasta y-intervall
+    // Ritar linjediagrammet med fasta y-intervall + begränsat x-fönster
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
-      const labels = byDate.map(p => fmtDate(p.date));
+
+      // Begränsa x-axeln till samma fönster som tabellen
+      const DEFAULT_ROWS = 12;
+      const dataWindow = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
+
+      const labels = dataWindow.map(p => fmtDate(p.date));
 
       const datasets = [];
       let hasAnyFinite = false;
 
       for(let i=0;i<maxSets;i++){
-        const data = byDate.map(p => {
+        const data = dataWindow.map(p => {
           const s = p.sets[i];
           if(!s) return null;
           const raw = metric==='reps' ? s.reps : s.weight;
@@ -282,7 +287,6 @@
           label: `Set #${i+1}`,
           data,
           spanGaps: true,
-          skipNull: true,
           pointRadius: 3,
           borderWidth: 2,
           tension: .25,
@@ -331,7 +335,7 @@
                 title: (items)=> items[0]?.label || '',
                 label: (ctx)=>{
                   const idx = ctx.datasetIndex; const setNo = idx+1;
-                  const p = byDate[ctx.dataIndex]; const s = p.sets[idx];
+                  const p = dataWindow[ctx.dataIndex]; const s = p.sets[idx]; // använd dataWindow
                   if(!s) return `Set #${setNo}: —`;
                   const w = (Number.isFinite(s.weight)) ? ` @ ${s.weight} kg` : '';
                   if(metric==='reps'){
