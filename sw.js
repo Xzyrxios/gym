@@ -1,10 +1,11 @@
 // Service Worker – fresh HTML (network-first) + immediate activation
 // Version bump this when you deploy changes
-const CACHE_NAME = 'traning-v3-2025-09-16';
+const CACHE_NAME = 'traning-v4-2025-09-16';
+console.log('[SW]', CACHE_NAME, 'installing…');
 
 // Precache only static assets that rarely change (NOT html)
 const ASSETS = [
-  './',
+  // OBS: Cacha INTE './' (det kan bli index.html/HTML i cache!)
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -15,12 +16,23 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
     await cache.addAll(ASSETS);
+    console.log('[SW]', CACHE_NAME, 'precached', ASSETS);
+  })());
+}); // activate new SW immediately
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(ASSETS);
   })());
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim(); // take control of uncontrolled clients
+    console.log('[SW]', CACHE_NAME, 'activated. Old caches cleared.');
+  })());
+});
     await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
     await self.clients.claim(); // take control of uncontrolled clients
   })());
