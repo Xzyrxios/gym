@@ -101,7 +101,7 @@
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
 
     // Versionsinfo för felsökning (syns i UI + console)
-    const BUILD_VERSION = 'stats.html v2025-09-16-CATEGORY';
+    const BUILD_VERSION = 'stats.html v2025-09-16-FINAL';
 
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
@@ -264,7 +264,7 @@
     // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // Ritar linjediagrammet med fasta y-intervall + hårt låst x-fönster + kategorisk x-axel
+    // Ritar linjediagrammet med fasta y-intervall + hårt låst x-fönster + kategorisk x-axel + NaN-hantering
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
 
@@ -275,17 +275,18 @@
       const labels = dataWindow.map(p => fmtDate(p.date));
 
       const datasets = [];
-      let hasAnyFinite = false;
 
       for(let i=0;i<maxSets;i++){
         const data = dataWindow.map(p => {
           const s = p.sets[i];
-          if(!s) return null;
+          if(!s) return Number.NaN; // NaN istället för null
           const raw = metric==='reps' ? s.reps : s.weight;
-          const v = Number.isFinite(raw) ? raw : null;
-          if(v!=null) hasAnyFinite = true;
+          const v = Number.isFinite(raw) ? raw : Number.NaN;
           return v;
         });
+        // hoppa över dataset som saknar helt giltiga värden
+        if(!data.some(v => Number.isFinite(v))) continue;
+
         const color = COLORS[i % COLORS.length];
         datasets.push({
           label: `Set #${i+1}`,
@@ -299,7 +300,7 @@
         });
       }
 
-      if(!hasAnyFinite){
+      if(datasets.length === 0){
         noData.style.display='block';
         if(chart){ chart.destroy(); chart=null; }
         return;
@@ -318,8 +319,9 @@
         options:{
           responsive:true, maintainAspectRatio:false,
           animation:false,
-          parsing:false,
           normalized:true,
+          // Viktigt: låt Chart.js parsa själv
+          // (parsing:false kan få dataset att "försvinna" när första punkten är null)
           interaction:{ mode:'nearest', intersect:false },
           scales:{
             x:{ type:'category', ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
