@@ -98,6 +98,9 @@
     const GH_KEY = 'trainingGithubCfgV1';
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
 
+    // Versionsinfo för felsökning (syns i UI + console)
+    const BUILD_VERSION = 'stats.html v2025-09-16-LOCKEDWINDOW';
+
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
 
@@ -180,7 +183,7 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const toggleAllBtn = document.getElementById('toggleAllBtn');
     let chart;
-    let showAllRows = false;
+    let showAllRows = false; // påverkar BARA tabellen i denna build
 
     // ===== Hjälpare =====
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
@@ -260,13 +263,13 @@
     // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // Ritar linjediagrammet med fasta y-intervall + begränsat x-fönster
+    // Ritar linjediagrammet med fasta y-intervall + HÅRT LÅST x-fönster (12 punkter)
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
 
-      // Begränsa x-axeln till samma fönster som tabellen
-      const DEFAULT_ROWS = 12;
-      const dataWindow = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
+      // Hårt lås: diagrammet visar alltid de sista 12 punkterna oavsett tabellens läge
+      const DEFAULT_CHART_ROWS = 12;
+      const dataWindow = byDate.slice(-DEFAULT_CHART_ROWS);
 
       const labels = dataWindow.map(p => fmtDate(p.date));
 
@@ -374,7 +377,8 @@
     metricSel.addEventListener('change', update);
     refreshBtn.addEventListener('click', initFetch);
     toggleAllBtn.addEventListener('click', ()=>{
-      showAllRows = !showAllRows;
+      showAllRows = !showAllRows; // påverkar bara tabellen
+      renderTable(buildSetSeries(readLocal(), exSel.value, daySel.value).byDate, 0); // snabb upprepning för tabell
       update();
     });
 
@@ -388,7 +392,7 @@
       if(gh){
         const merged = mergeLogs(readLocal(), gh);
         writeLocal(merged);
-        sourceEl.textContent = 'Källa: GitHub (sammanfogad)';
+        sourceEl.textContent = `Källa: GitHub (sammanfogad) · ${BUILD_VERSION}`;
       } else {
         loadGhCfg();
         if(!GH.token){
@@ -396,12 +400,13 @@
         } else {
           showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
         }
-        sourceEl.textContent = 'Källa: localStorage';
+        sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`;
       }
       hydrateUI();
     }
 
     // Start
+    console.log('Loaded', BUILD_VERSION);
     initFetch();
   </script>
 
