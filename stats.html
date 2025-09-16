@@ -20,10 +20,8 @@
     .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media (max-width:800px){ .controls{grid-template-columns:1fr} }
     .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    /* Diagramhöjd: lagom på desktop & mobil */
     canvas{max-width:100%;height:clamp(260px,45vh,420px);touch-action: pan-y;}
     @media (max-width:600px){ canvas{height:300px} }
-    /* Tabell */
     table{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
     th,td{padding:10px 12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     tbody tr{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
@@ -33,7 +31,6 @@
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
   </style>
 
-  <!-- PWA meta -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,8 +66,8 @@
         </label>
         <label>Visa
           <select id="metricSelect">
-            <option value="reps">Reps (en linje per set)</option>
-            <option value="weight">Vikt (kg) (en linje per set)</option>
+            <option value="reps">Reps (grupperade staplar per set)</option>
+            <option value="weight">Vikt (kg) (grupperade staplar per set)</option>
           </select>
         </label>
       </div>
@@ -95,13 +92,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // ===== LocalStorage & GitHub-konfig =====
     const STORAGE_KEY = 'trainingLogsV1';
     const GH_KEY = 'trainingGithubCfgV1';
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
-
-    // Versionsinfo för felsökning (syns i UI + console)
-    const BUILD_VERSION = 'stats.html v2025-09-16-FINAL';
+    const BUILD_VERSION = 'stats.html v2025-09-16-BAR';
 
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
@@ -110,28 +104,19 @@
     const writeLocal = (logs) => localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
     const loadGhCfg  = () => Object.assign(GH, JSON.parse(localStorage.getItem(GH_KEY) || '{}'));
 
-    // ===== Hämta från GitHub (RAW om publikt, annars API om token finns) =====
     async function fetchFromGitHub(){
       loadGhCfg();
       if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
-
-      // Publikt repo – RAW
       try{
         const raw = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`;
         const r = await fetch(raw, { cache: 'no-store' });
         if(r.ok){ sourceEl.textContent = 'Källa: GitHub (RAW)'; return await r.json(); }
       }catch{}
-
-      // Privat repo – API
       try{
         if(!GH.token) return null;
         const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
         const res = await fetch(url, {
-          headers:{
-            'Accept':'application/vnd.github+json',
-            'Authorization':`Bearer ${GH.token}`,
-            'X-GitHub-Api-Version':'2022-11-28'
-          }
+          headers:{ 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${GH.token}`, 'X-GitHub-Api-Version':'2022-11-28' }
         });
         if(!res.ok) return null;
         const obj  = await res.json();
@@ -142,11 +127,10 @@
       return null;
     }
 
-    // ===== Merge (ingen radering) =====
     const clone = (o)=> JSON.parse(JSON.stringify(o||null));
     const keyWorkout  = (w)=> `${w.date}|${w.day}`;
     const keyExercise = (e)=> (e.id||e.exercise||'').toString();
-    const keySet      = (s)=> `${Number(s.reps||0)}@${(s.weight===null||s.weight===undefined)?'':Number(s.weight)}`;
+    const keySet      = (s)=> `${Number(s.reps||0)}@${(s.weight==null? '':Number(s.weight))}`;
 
     function mergeLogs(localArr, remoteArr){
       const A = Array.isArray(localArr)? clone(localArr):[];
@@ -176,7 +160,6 @@
       return out;
     }
 
-    // ===== UI refs =====
     const exSel = document.getElementById('exerciseSelect');
     const daySel = document.getElementById('dayFilter');
     const metricSel = document.getElementById('metricSelect');
@@ -185,9 +168,8 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const toggleAllBtn = document.getElementById('toggleAllBtn');
     let chart;
-    let showAllRows = false; // påverkar bara tabellen
+    let showAllRows = false;
 
-    // ===== Hjälpare =====
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
     const uniq = a => [...new Set(a)];
     function listExercises(logs){
@@ -196,18 +178,9 @@
       return uniq(names);
     }
 
-    // Fasta y-intervall beroende på skärmbredd (mobil vs desktop)
-    const FIXED_RANGES = {
-      mobile:  { reps: [0, 30],  weight: [0, 200] },
-      desktop: { reps: [0, 50],  weight: [0, 300] }
-    };
-    function getFixedRange(metric){
-      const isMobile = window.innerWidth <= 500;
-      const [min, max] = (isMobile ? FIXED_RANGES.mobile : FIXED_RANGES.desktop)[metric];
-      return { min, max };
-    }
+    const FIXED_RANGES = { mobile:{ reps:[0,30], weight:[0,200] }, desktop:{ reps:[0,50], weight:[0,300] } };
+    function getFixedRange(metric){ const isMobile = window.innerWidth <= 500; const [min,max] = (isMobile? FIXED_RANGES.mobile: FIXED_RANGES.desktop)[metric]; return {min,max}; }
 
-    // Bygg punktserier per set-index (#1, #2, #3 …)
     function buildSetSeries(logs, exerciseName, dayFilter){
       const byDate = [];
       let maxSets = 0;
@@ -217,34 +190,19 @@
         if(!entry) return;
         const sets = entry.sets||[];
         maxSets = Math.max(maxSets, sets.length);
-        byDate.push({
-          date:l.date,
-          sets: sets.map((s,i)=>({
-            idx:i+1,
-            reps: Number(s?.reps ?? NaN),
-            weight: (s?.weight==null ? null : Number(s.weight))
-          }))
-        });
+        byDate.push({ date:l.date, sets: sets.map((s,i)=>({ idx:i+1, reps:Number(s?.reps ?? NaN), weight:(s?.weight==null? null: Number(s.weight)) })) });
       });
       byDate.sort((a,b)=> a.date.localeCompare(b.date));
       return { byDate, maxSets };
     }
 
-    // Tabell (senaste 12 som standard)
     function renderTable(byDate, maxSets){
-      if(!byDate.length){
-        tableWrap.textContent = '—';
-        toggleAllBtn.style.display = 'none';
-        return;
-      }
-      const DEFAULT_ROWS = 12;
-      const data = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
-
+      if(!byDate.length){ tableWrap.textContent = '—'; toggleAllBtn.style.display = 'none'; return; }
+      const DEFAULT_ROWS = 12; const data = showAllRows ? byDate : byDate.slice(-DEFAULT_ROWS);
       const headSets = Array.from({length:maxSets}, (_,i)=>`<th>#${i+1}</th>`).join('');
       const rows = data.map(p => {
         const cells = Array.from({length:maxSets}, (_,i)=>{
-          const s = p.sets[i];
-          if(!s) return '<td class="muted">—</td>';
+          const s = p.sets[i]; if(!s) return '<td class="muted">—</td>';
           const w = (s.weight==null || !Number.isFinite(s.weight)) ? '' : ` @ ${s.weight} kg`;
           const r = Number.isFinite(s.reps) ? s.reps : '—';
           return `<td>${r} reps${w}</td>`;
@@ -252,105 +210,56 @@
         return `<tr><td>${fmtDate(p.date)}</td>${cells}</tr>`;
       }).join('');
       tableWrap.innerHTML = `<table><thead><tr><th style="width:140px">Datum</th>${headSets}</tr></thead><tbody>${rows}</tbody></table>`;
-
-      if(byDate.length > DEFAULT_ROWS){
-        toggleAllBtn.style.display = 'inline-block';
-        toggleAllBtn.textContent = showAllRows ? 'Visa senaste 12' : 'Visa alla';
-      } else {
-        toggleAllBtn.style.display = 'none';
-      }
+      if(byDate.length > DEFAULT_ROWS){ toggleAllBtn.style.display='inline-block'; toggleAllBtn.textContent = showAllRows ? 'Visa senaste 12' : 'Visa alla'; } else { toggleAllBtn.style.display='none'; }
     }
 
-    // Konsekventa färger för set-linjerna
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
 
-    // Ritar linjediagrammet med fasta y-intervall + hårt låst x-fönster + kategorisk x-axel + NaN-hantering
     function renderChart(byDate, maxSets){
       const metric = metricSel.value;
-
-      // Hårt lås: diagrammet visar alltid de sista 12 punkterna
       const DEFAULT_CHART_ROWS = 12;
       const dataWindow = byDate.slice(-DEFAULT_CHART_ROWS);
-
       const labels = dataWindow.map(p => fmtDate(p.date));
 
       const datasets = [];
-
       for(let i=0;i<maxSets;i++){
         const data = dataWindow.map(p => {
           const s = p.sets[i];
-          if(!s) return Number.NaN; // NaN istället för null
+          if(!s) return Number.NaN;
           const raw = metric==='reps' ? s.reps : s.weight;
-          const v = Number.isFinite(raw) ? raw : Number.NaN;
-          return v;
+          return Number.isFinite(raw) ? raw : Number.NaN;
         });
-        // hoppa över dataset som saknar helt giltiga värden
         if(!data.some(v => Number.isFinite(v))) continue;
-
         const color = COLORS[i % COLORS.length];
         datasets.push({
+          type: 'bar',
           label: `Set #${i+1}`,
           data,
-          spanGaps: false, // rita inte över luckor
-          pointRadius: 3,
-          borderWidth: 2,
-          tension: .25,
+          backgroundColor: color + 'aa',
           borderColor: color,
-          backgroundColor: color + '33'
+          borderWidth: 1,
+          barPercentage: 0.9,
+          categoryPercentage: 0.8,
         });
-      }
-
-      if(datasets.length === 0){
-        noData.style.display='block';
-        if(chart){ chart.destroy(); chart=null; }
-        return;
-      } else {
-        noData.style.display='none';
       }
 
       if(chart){ chart.destroy(); chart = null; }
-      const ctx = document.getElementById('chart').getContext('2d');
+      if(datasets.length === 0){ noData.style.display='block'; return; } else { noData.style.display='none'; }
 
-      const yRange = getFixedRange(metric); // fasta intervall
+      const ctx = document.getElementById('chart').getContext('2d');
+      const yRange = getFixedRange(metric);
 
       chart = new Chart(ctx, {
-        type:'line',
-        data:{ labels, datasets },
-        options:{
+        data: { labels, datasets },
+        options: {
           responsive:true, maintainAspectRatio:false,
-          animation:false,
-          normalized:true,
-          // Viktigt: låt Chart.js parsa själv
-          // (parsing:false kan få dataset att "försvinna" när första punkten är null)
-          interaction:{ mode:'nearest', intersect:false },
-          scales:{
-            x:{ type:'category', ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
-            y:{
-              beginAtZero:false,
-              min: yRange.min,
-              max: yRange.max,
-              ticks:{ color:'#cbd5e1' },
-              title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' }
-            }
+          scales: {
+            x: { type:'category', stacked:false, ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
+            y: { min:yRange.min, max:yRange.max, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } }
           },
-          plugins:{
-            filler:false,
-            legend:{ labels:{ color:'#e5e7eb' } },
-            tooltip:{
-              callbacks:{
-                title: (items)=> items[0]?.label || '',
-                label: (ctx)=>{
-                  const idx = ctx.datasetIndex; const setNo = idx+1;
-                  const p = dataWindow[ctx.dataIndex]; const s = p.sets[idx];
-                  if(!s) return `Set #${setNo}: —`;
-                  const w = (Number.isFinite(s.weight)) ? ` @ ${s.weight} kg` : '';
-                  if(metric==='reps'){
-                    return Number.isFinite(s.reps) ? `Set #${setNo}: ${s.reps} reps${w}` : `Set #${setNo}: —`;
-                  }
-                  return Number.isFinite(s.weight) ? `Set #${setNo}: ${s.weight} kg` : `Set #${setNo}: —`;
-                }
-              }
-            }
+          plugins: {
+            legend: { labels: { color:'#e5e7eb' } },
+            tooltip: { callbacks: { label: (ctx)=> `Set #${ctx.datasetIndex+1}: ${ctx.parsed.y} ${metric==='reps'?'reps':'kg'}` } }
           }
         }
       });
@@ -379,46 +288,24 @@
     daySel.addEventListener('change', update);
     metricSel.addEventListener('change', update);
     refreshBtn.addEventListener('click', initFetch);
-    toggleAllBtn.addEventListener('click', ()=>{
-      showAllRows = !showAllRows;
-      update();
-    });
+    toggleAllBtn.addEventListener('click', ()=>{ showAllRows = !showAllRows; update(); });
 
     function showHint(msg){ hintBox.textContent = msg; hintBox.style.display = 'block'; }
 
     async function initFetch(){
-      hintBox.style.display = 'none';
-      sourceEl.textContent = 'Källa: försöker GitHub…';
-
+      hintBox.style.display = 'none'; sourceEl.textContent = 'Källa: försöker GitHub…';
       const gh = await fetchFromGitHub();
-      if(gh){
-        const merged = mergeLogs(readLocal(), gh);
-        writeLocal(merged);
-        sourceEl.textContent = `Källa: GitHub (sammanfogad) · ${BUILD_VERSION}`;
-      } else {
-        loadGhCfg();
-        if(!GH.token){
-          showHint('Ingen data från GitHub. Om repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.');
-        } else {
-          showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`);
-        }
-        sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`;
-      }
+      if(gh){ const merged = mergeLogs(readLocal(), gh); writeLocal(merged); sourceEl.textContent = `Källa: GitHub (sammanfogad) · ${BUILD_VERSION}`; }
+      else { loadGhCfg(); if(!GH.token){ showHint('Ingen data från GitHub. Om repo är privat: öppna index.html → Inställningar, klistra in token och Synka en gång.'); } else { showHint('Kunde inte läsa från GitHub just nu. Kontrollera sökvägen: ' + `${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`); } sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`; }
       hydrateUI();
     }
 
-    // Start
     console.log('Loaded', BUILD_VERSION);
     initFetch();
   </script>
 
-  <!-- Registrera service worker om filen finns -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(()=>{});
-      });
-    }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
   </script>
 </body>
 </html>
