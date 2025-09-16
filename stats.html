@@ -4,34 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Träningsstatistik</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
   <style>
-    :root { --bg:#0f172a; --muted:#94a3b8; --txt:#e5e7eb; --accent:#22d3ee; }
+    :root { --bg:#0f172a; --muted:#94a3b8; --txt:#e5e7eb; --accent:#22d3ee; --panel:#132038; }
     *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0f172a;color:var(--txt)}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1022,#0f172a 40%,#0b1022);color:var(--txt)}
     .wrap{max-width:1100px;margin:24px auto;padding:16px}
-    .card{background:#11182780;backdrop-filter:blur(6px);border:1px solid #ffffff1a;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
+    .card{background:rgba(255,255,255,.04);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:16px}
     .panel{padding:16px}
     h1{font-size:clamp(22px,3.2vw,34px);margin:0 0 10px}
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     a.btn,button.btn{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;min-height:40px;text-decoration:none;display:inline-block}
-    button.ghost{background:transparent;color:var(--txt);border:1px solid #ffffff2e}
-    select{background:#0b1224;border:1px solid #ffffff1f;border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
+    button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
+    select{background:#0b1224;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--txt);padding:10px 12px;min-height:40px}
     .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media (max-width:800px){ .controls{grid-template-columns:1fr} }
-    .pill{display:inline-block;border:1px solid #ffffff2e;border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    canvas{max-width:100%;height:clamp(260px,45vh,420px);touch-action: pan-y;}
+    .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    .chartBox{position:relative; width:100%; height:clamp(260px,45vh,420px); background:transparent}
+    svg{width:100%; height:100%; display:block}
+    .legend{display:flex; gap:12px; align-items:center; font-size:14px; margin-bottom:4px}
+    .legend span{display:inline-flex; align-items:center; gap:6px}
+    .dot{width:12px; height:12px; border-radius:3px; display:inline-block}
     .warn{background:#2b2f45;border:1px dashed #f59e0b;color:#fde68a;padding:8px 10px;border-radius:10px;font-size:14px}
+    .footer{margin-top:6px; font-size:12px; color:#94a3b8}
   </style>
-
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Träning">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 </head>
 <body>
   <div class="wrap">
@@ -59,8 +60,8 @@
         </label>
         <label>Visa
           <select id="metricSelect">
-            <option value="reps">Reps (grupperade staplar per set)</option>
-            <option value="weight">Vikt (kg) (grupperade staplar per set)</option>
+            <option value="reps">Reps (linje per set)</option>
+            <option value="weight">Vikt (kg) (linje per set)</option>
           </select>
         </label>
       </div>
@@ -69,17 +70,21 @@
 
     <div class="card panel">
       <h2 style="margin:0 0 6px">Utveckling över tid</h2>
-      <canvas id="chart"></canvas>
+      <div class="legend" id="legend"></div>
+      <div class="chartBox"><svg id="svg"></svg></div>
       <div id="noData" class="muted" style="display:none;margin-top:8px">Ingen data för vald kombination.</div>
+      <div class="footer" id="buildInfo"></div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    // ===== Versionsinfo =====
+    const BUILD_VERSION = 'stats.html v2025-09-16-SVG';
+
+    // ===== LocalStorage & GitHub =====
     const STORAGE_KEY = 'trainingLogsV1';
     const GH_KEY = 'trainingGithubCfgV1';
     const GH = { owner:'Xzyrxios', repo:'gym', branch:'main', path:'data/traningslogg.json', token:'' };
-    const BUILD_VERSION = 'stats.html v2025-09-16-BAR-FIXED';
 
     const sourceEl = document.getElementById('source');
     const hintBox  = document.getElementById('hintBox');
@@ -91,16 +96,22 @@
     async function fetchFromGitHub(){
       loadGhCfg();
       if(!(GH.owner && GH.repo && GH.branch && GH.path)) return null;
+      // RAW
       try{
         const raw = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}`;
         const r = await fetch(raw, { cache: 'no-store' });
         if(r.ok){ sourceEl.textContent = 'Källa: GitHub (RAW)'; return await r.json(); }
       }catch{}
+      // API (privat)
       try{
         if(!GH.token) return null;
         const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${encodeURIComponent(GH.branch)}`;
         const res = await fetch(url, {
-          headers:{ 'Accept':'application/vnd.github+json','Authorization':`Bearer ${GH.token}`,'X-GitHub-Api-Version':'2022-11-28' }
+          headers:{
+            'Accept':'application/vnd.github+json',
+            'Authorization':`Bearer ${GH.token}`,
+            'X-GitHub-Api-Version':'2022-11-28'
+          }
         });
         if(!res.ok) return null;
         const obj  = await res.json();
@@ -111,10 +122,11 @@
       return null;
     }
 
+    // ===== Merge =====
     const clone = (o)=> JSON.parse(JSON.stringify(o||null));
     const keyWorkout  = (w)=> `${w.date}|${w.day}`;
     const keyExercise = (e)=> (e.id||e.exercise||'').toString();
-    const keySet      = (s)=> `${Number(s.reps||0)}@${(s.weight==null? '':Number(s.weight))}`;
+    const keySet      = (s)=> `${Number(s.reps||0)}@${(s.weight==null?'':Number(s.weight))}`;
 
     function mergeLogs(localArr, remoteArr){
       const A = Array.isArray(localArr)? clone(localArr):[];
@@ -144,18 +156,37 @@
       return out;
     }
 
+    // ===== UI refs =====
     const exSel = document.getElementById('exerciseSelect');
     const daySel = document.getElementById('dayFilter');
     const metricSel = document.getElementById('metricSelect');
     const noData = document.getElementById('noData');
+    const svg = document.getElementById('svg');
+    const legend = document.getElementById('legend');
     const refreshBtn = document.getElementById('refreshBtn');
-    let chart;
 
     const COLORS = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22d3ee','#e879f9','#4ade80','#fb7185','#93c5fd'];
-    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE', { month:'short', day:'numeric' });
 
-    const FIXED_RANGES = { mobile:{ reps:[0,30], weight:[0,200] }, desktop:{ reps:[0,50], weight:[0,300] } };
-    function getFixedRange(metric){ const isMobile = window.innerWidth <= 500; const [min,max] = (isMobile? FIXED_RANGES.mobile: FIXED_RANGES.desktop)[metric]; return {min,max}; }
+    // ===== Hjälpare =====
+    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE');
+    const uniq = a => [...new Set(a)];
+
+    // Fasta Y-intervall (ingen auto-zoom)
+    const FIXED_RANGES = {
+      mobile:  { reps: [0, 30],  weight: [0, 200] },
+      desktop: { reps: [0, 50],  weight: [0, 300] }
+    };
+    function getFixedRange(metric){
+      const isMobile = window.innerWidth <= 500;
+      const [min, max] = (isMobile ? FIXED_RANGES.mobile : FIXED_RANGES.desktop)[metric];
+      return { min, max };
+    }
+
+    function listExercises(logs){
+      const names = [];
+      (logs||[]).forEach(l => (l.entries||[]).forEach(e => names.push(e.exercise || e.id)));
+      return uniq(names);
+    }
 
     function buildSetSeries(logs, exerciseName, dayFilter){
       const byDate = [];
@@ -179,81 +210,169 @@
       return { byDate, maxSets };
     }
 
-    function renderChart(byDate, maxSets){
+    // ===== SVG-diagram =====
+    function renderSVG(byDate, maxSets){
       const metric = metricSel.value;
-      const DEFAULT_CHART_ROWS = 12;
-      const dataWindow = byDate.slice(-DEFAULT_CHART_ROWS);
-      const labels = dataWindow.map(p => fmtDate(p.date));
+      const { min, max } = getFixedRange(metric);
 
-      const datasets = [];
-      for(let i=0;i<maxSets;i++){
-        const data = dataWindow.map(p => {
-          const s = p.sets[i];
-          if(!s) return Number.NaN;
-          const raw = metric==='reps' ? s.reps : s.weight;
-          return Number.isFinite(raw) ? raw : Number.NaN;
-        });
-        if(!data.some(v => Number.isFinite(v))) continue;
-        const color = COLORS[i % COLORS.length];
-        datasets.push({ type:'bar', label:`Set #${i+1}`, data, backgroundColor: color + 'cc', borderColor: color, borderWidth:1, barPercentage:.9, categoryPercentage:.8 });
+      // Ta sista 12
+      const data = byDate.slice(-12);
+      const labels = data.map(p => fmtDate(p.date));
+      const width = svg.clientWidth || svg.parentElement.clientWidth;
+      const height = svg.clientHeight || svg.parentElement.clientHeight;
+
+      // Rensa
+      svg.innerHTML = '';
+
+      if(!data.length || maxSets === 0){
+        noData.style.display = 'block';
+        return;
+      } else {
+        noData.style.display = 'none';
       }
 
-      if(chart){ chart.destroy(); chart=null; }
-      if(datasets.length === 0){ noData.style.display='block'; return; } else { noData.style.display='none'; }
+      // Margins
+      const m = { left: 46, right: 12, top: 14, bottom: 24 };
+      const W = Math.max(100, width - m.left - m.right);
+      const H = Math.max(80, height - m.top - m.bottom);
 
-      const {min,max} = getFixedRange(metric);
-      const ctx = document.getElementById('chart').getContext('2d');
-      chart = new Chart(ctx, {
-        data: { labels, datasets },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          scales: {
-            x: { type:'category', stacked:false, ticks:{ color:'#cbd5e1', maxTicksLimit:8 } },
-            y: { min, max, ticks:{ color:'#cbd5e1' }, title:{ display:true, text: metric==='reps' ? 'reps' : 'kg' } }
-          },
-          plugins: {
-            legend: { labels: { color:'#e5e7eb' } },
-            tooltip: {
-              callbacks: {
-                label: (ctx)=> `Set #${ctx.datasetIndex+1}: ${ctx.parsed.y} ${metric==='reps'?'reps':'kg'}`
-              }
-            }
+      // Skapa root-grupp
+      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('transform', `translate(${m.left},${m.top})`);
+      svg.appendChild(g);
+
+      // Axlar (enkla)
+      const axis = document.createElementNS('http://www.w3.org/2000/svg','g');
+      axis.setAttribute('fill', 'none');
+      axis.setAttribute('stroke', '#334155');
+      axis.setAttribute('stroke-width', '1');
+      g.appendChild(axis);
+
+      // Y-grid + etiketter (5 steg)
+      const steps = 5;
+      for(let i=0;i<=steps;i++){
+        const t = i/steps;
+        const y = H - t*H;
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', 0); line.setAttribute('x2', W);
+        line.setAttribute('y1', y); line.setAttribute('y2', y);
+        line.setAttribute('stroke', i===0? '#475569' : '#1f2a44');
+        axis.appendChild(line);
+
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+        lbl.setAttribute('x', -8);
+        lbl.setAttribute('y', y+4);
+        lbl.setAttribute('text-anchor', 'end');
+        lbl.setAttribute('font-size', '12');
+        lbl.setAttribute('fill', '#cbd5e1');
+        const val = (min + (max-min)*t).toFixed(0);
+        lbl.textContent = val;
+        g.appendChild(lbl);
+      }
+
+      // X-etiketter
+      labels.forEach((lab,i)=>{
+        const x = (labels.length<=1) ? W/2 : (i*(W/(labels.length-1)));
+        const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x', x);
+        txt.setAttribute('y', H+18);
+        txt.setAttribute('text-anchor', i===0 ? 'start' : (i===labels.length-1 ? 'end' : 'middle'));
+        txt.setAttribute('font-size', '12');
+        txt.setAttribute('fill', '#cbd5e1');
+        txt.textContent = lab;
+        g.appendChild(txt);
+      });
+
+      // Skalfunktioner
+      const xAt = (i)=> (labels.length<=1) ? W/2 : (i*(W/(labels.length-1)));
+      const yAt = (v)=> {
+        const clamped = Math.max(min, Math.min(max, v));
+        const t = (clamped - min) / (max - min || 1);
+        return H - t*H;
+      };
+
+      // Legend
+      legend.innerHTML = '';
+      for(let i=0;i<maxSets;i++){
+        const span = document.createElement('span');
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = COLORS[i % COLORS.length];
+        span.appendChild(dot);
+        const label = document.createTextNode(`Set #${i+1}`);
+        span.appendChild(label);
+        legend.appendChild(span);
+      }
+
+      // Linjer per set
+      for(let s=0; s<maxSets; s++){
+        // Samla punkter (kan finnas luckor)
+        const pts = [];
+        data.forEach((p,idx)=>{
+          const set = p.sets[s];
+          if(!set) return;
+          const v = metric==='reps' ? set.reps : set.weight;
+          if(Number.isFinite(v)){
+            pts.push({ x:xAt(idx), y:yAt(v) });
+          } else {
+            pts.push(null);
+          }
+        });
+
+        // Rita segment mellan giltiga punkter (skippar luckor)
+        for(let i=1;i<pts.length;i++){
+          const a = pts[i-1], b = pts[i];
+          if(a && b){
+            const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+            line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+            line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+            line.setAttribute('stroke', COLORS[s % COLORS.length]);
+            line.setAttribute('stroke-width', '2');
+            g.appendChild(line);
           }
         }
-      });
+
+        // Punkter
+        pts.forEach(p=>{
+          if(!p) return;
+          const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
+          c.setAttribute('r', 3);
+          c.setAttribute('fill', COLORS[s % COLORS.length]);
+          g.appendChild(c);
+        });
+      }
     }
 
     function hydrateUI(){
       const logs = readLocal();
-      const names = [...new Set((logs||[]).flatMap(l => (l.entries||[]).map(e => e.exercise || e.id)))];
+      const exercises = listExercises(logs);
       exSel.innerHTML = '';
-      names.forEach(n => exSel.append(new Option(n, n)));
-      if(!exSel.value && names.length) exSel.value = names[0];
+      exercises.forEach(n => exSel.append(new Option(n, n)));
+      if(exSel.value==='' && exercises.length){ exSel.value = exercises[0]; }
       update(); // första render
     }
 
     function update(){
       const logs = readLocal();
-
-      // bygg listan om den är tom (t.ex. första körningen)
-      if(exSel.options.length === 0){
-        const names = [...new Set((logs||[]).flatMap(l => (l.entries||[]).map(e => e.exercise || e.id)))];
-        names.forEach(n => exSel.append(new Option(n, n)));
+      // se till att dropdown är fylld
+      if(exSel.options.length===0){
+        const exercises = listExercises(logs);
+        exercises.forEach(n => exSel.append(new Option(n, n)));
+        if(exercises.length) exSel.value = exercises[0];
       }
-
-      // LÄS värdet EFTER ev. populering
       const exercise = exSel.value;
       const day = daySel.value;
-
       const { byDate, maxSets } = exercise ? buildSetSeries(logs, exercise, day) : { byDate:[], maxSets:0 };
-      renderChart(byDate, maxSets);
+      renderSVG(byDate, maxSets);
     }
 
-    // Lyssnare (saknades tidigare)
+    // Event
     exSel.addEventListener('change', update);
     daySel.addEventListener('change', update);
     metricSel.addEventListener('change', update);
     refreshBtn.addEventListener('click', initFetch);
+    window.addEventListener('resize', ()=>{ update(); }); // rita om vid resize
 
     function showHint(msg){ hintBox.textContent = msg; hintBox.style.display = 'block'; }
 
@@ -275,17 +394,19 @@
         sourceEl.textContent = `Källa: localStorage · ${BUILD_VERSION}`;
       }
       hydrateUI();
+      document.getElementById('buildInfo').textContent = BUILD_VERSION;
+      console.log('Loaded', BUILD_VERSION);
     }
 
-    console.log('Loaded', BUILD_VERSION);
+    // Start
     initFetch();
   </script>
 
+  <!-- Valfritt: SW, men om sidan "blinkar" ofta – testa utan SW först -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(()=>{});
-      });
+      // Kommentera bort nästa rad om du vill testa helt utan SW-cache:
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
     }
   </script>
 </body>
