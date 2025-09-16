@@ -1,27 +1,22 @@
-// Service Worker – fresh HTML (network-first) + immediate activation
-// Version bump this when you deploy changes
-const CACHE_NAME = 'traning-v4-2025-09-16';
-console.log('[SW]', CACHE_NAME, 'installing…');
-
-// Precache only static assets that rarely change (NOT html)
+// sw.js — minimal och säker
+const CACHE_NAME = 'traning-v5-2025-09-16';
 const ASSETS = [
-  // OBS: Cacha INTE './' (det kan bli index.html/HTML i cache!)
+  // Lägg bara filer här som verkligen finns!
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // activate new SW immediately
+  self.skipWaiting();
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await cache.addAll(ASSETS);
-    console.log('[SW]', CACHE_NAME, 'precached', ASSETS);
-  })());
-}); // activate new SW immediately
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    await cache.addAll(ASSETS);
+    try {
+      await cache.addAll(ASSETS);
+    } catch (e) {
+      // Om någon fil saknas (404) vill vi INTE krascha installationen
+      // därför ignorerar vi fel här.
+    }
   })());
 });
 
@@ -29,59 +24,42 @@ self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
     await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-    await self.clients.claim(); // take control of uncontrolled clients
-    console.log('[SW]', CACHE_NAME, 'activated. Old caches cleared.');
-  })());
-});
-    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-    await self.clients.claim(); // take control of uncontrolled clients
+    await self.clients.claim();
   })());
 });
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') {
-    // Don’t try to cache non-GET requests
-    return event.respondWith(fetch(req));
+    return; // släpp igenom POST/PUT etc till nätet
   }
 
-  const accept = req.headers.get('accept') || '';
-  const isHTML = req.mode === 'navigate' || accept.includes('text/html');
+  // Cachade ASSETS: cache-first
+  const url = new URL(req.url);
+  const isSameOrigin = url.origin === location.origin;
+  const isAsset = isSameOrigin && ASSETS.some(p => url.pathname.endsWith(p.replace('./','/')));
 
-  if (isHTML) {
-    // Network-first for HTML to ensure freshest pages (stats.html, index.html)
-    return event.respondWith((async () => {
+  if (isAsset) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(req);
+      if (cached) {
+        // tyst bakgrundsuppdatering
+        fetch(req).then(res => { if (res && res.ok) cache.put(req, res.clone()); }).catch(()=>{});
+        return cached;
+      }
       try {
-        const fresh = await fetch(new Request(req.url, { cache: 'no-store' }));
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(req, fresh.clone()).catch(()=>{});
-        return fresh;
-      } catch (err) {
-        const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match(req);
-        return cached || cache.match('./');
+        const res = await fetch(req);
+        if (res && res.ok) cache.put(req, res.clone());
+        return res;
+      } catch {
+        return new Response('', { status: 504, statusText: 'Offline' });
       }
     })());
+    return;
   }
 
-  // For non-HTML: cache-first with network fallback + background refresh
-  return event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(req);
-    if (cached) {
-      // Update in background
-      fetch(req).then(res => {
-        if (res && res.ok) cache.put(req, res.clone()).catch(()=>{});
-      }).catch(()=>{});
-      return cached;
-    }
-    try {
-      const res = await fetch(req);
-      if (res && res.ok) cache.put(req, res.clone()).catch(()=>{});
-      return res;
-    } catch {
-      // last resort: try fallback to app shell if root request
-      return cache.match('./');
-    }
-  })());
+  // Allt annat: direkt nätverk (ingen HTML-cache)
+  // (Network-first utan att spara i Cache)
+  event.respondWith(fetch(req).catch(() => new Response('', { status: 504, statusText: 'Offline' })));
 });
