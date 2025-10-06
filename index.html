@@ -144,7 +144,7 @@ const PROGRAM = {
     { id:'ohp', name:'Press över huvudet', range:[8,10], progression:{type:'weekly_weight', increment:1} },
     { id:'pullups', name:'Pullups', range:[5,10], progression:{type:'weekly_rep'}, bw:true,
       note:'Öka 1 rep/vecka. Ta bort band när du når 10 reps.' },
-    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'},
+    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultsets:6,
       note:'En extra rep/vecka. Öka vikt när du klarar 15 reps.' },
   ],
   2: [
@@ -161,7 +161,7 @@ const PROGRAM = {
       note:'Öka 1 rep/vecka.' },
     { id:'ringrow', name:'Ringrodd', range:[8,15], progression:{type:'weekly_rep'}, bw:true,
       note:'Öka 1 rep/vecka. Luta dig mer bakåt när du klarar 15.' },
-    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'},
+    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultsets:6,
       note:'En extra rep/vecka. Öka vikt när du klarar 15 reps.' },
   ]
 };
@@ -326,6 +326,36 @@ function renderExercises(){
       sets.append(row);
     };
 
+    // Hålla numreringen korrekt efter borttag
+    function renumber(grid){
+      let i=1;
+      [...grid.querySelectorAll('.set-row')].forEach(r=>{
+        r.firstChild.textContent = `#${i++}`;
+      });
+    }
+
+    // ⬇️ NYTT: använd ex.defaultSets om satt, annars 3
+    const initialSets = Number(ex.defaultSets || 3);
+    for (let i = 1; i <= initialSets; i++) addSetRow(i);
+
+    // Knapp för fler set
+    const addBtn = h('button',{
+      class:'ghost',
+      type:'button',
+      onclick:()=>{ addSetRow(sets.querySelectorAll('.set-row').length+1); }
+    }, '+ Lägg till set');
+
+    container.append(
+      h('div',{class:'row', style:'align-items:baseline;justify-content:space-between'}, h('div',{}, title, ' ', range), addBtn),
+      sets,
+      h('div',{class:'note'}, ex.note || ruleText(ex)),
+      hint
+    );
+
+    exercisesPanel.append(container);
+    updateHint(ex, hint);
+  });
+}
     function renumber(grid){
       let i=1;
       [...grid.querySelectorAll('.set-row')].forEach(r=>{
