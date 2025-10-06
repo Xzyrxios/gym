@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Träningslogg – 3-dagarsprogram</title>
  
-    <!-- PWA & iOS-app meta -->
+  <!-- PWA & iOS-app meta -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
 
@@ -362,6 +362,7 @@ const saveBtn = document.getElementById('saveBtn');
 const syncBtn = document.getElementById('syncBtn');
 const pullBtn = document.getElementById('pullBtn');
 const cfgBtn = document.getElementById('cfgBtn');
+const clearBtn = document.getElementById('clearBtn'); // <— NY!
 
 dateInput.value = todayISO();
 
@@ -459,6 +460,16 @@ async function doPull(){
 syncBtn.addEventListener('click', doSync);
 pullBtn.addEventListener('click', doPull);
 
+// ===== Rensa lokalt (NY FUNKTION)
+clearBtn.addEventListener('click', ()=>{
+  if(confirm('Rensa alla lokala loggar på den här enheten? Detta tar inte bort något på GitHub.')){
+    localStorage.removeItem(STORAGE_KEY);
+    updateHistory();
+    exercisesPanel.innerHTML = '<p class="empty">Välj en dag ovan.</p>';
+    alert('Lokala loggar rensade. Tryck "Hämta" för att läsa in från GitHub.');
+  }
+});
+
 // ===== Inställningsmodal
 const cfgModal = document.getElementById('cfgModal');
 const cfgClose = document.getElementById('cfgClose');
@@ -494,7 +505,9 @@ cfgSave.addEventListener('click', ()=>{
 dateInput.value = todayISO();
 updateHistory();
 </script>
-  <script>
+
+<script>
+  // Service worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(console.error);
