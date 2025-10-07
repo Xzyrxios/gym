@@ -4,12 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Träningslogg – 3-dagarsprogram</title>
- 
+
   <!-- PWA & iOS-app meta -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
-
-  <!-- iOS PWA-meta -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -39,21 +37,17 @@
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
     input[type=number]{ -moz-appearance:textfield; }
-
     button{background:var(--accent);color:#001018;border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;min-height:44px}
     button.ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.18)}
     .exercise{border-top:2px solid rgba(255,255,255,.15);padding:18px 0;margin-top:18px}
     .exercise h3{margin:0 0 8px;font-size:18px}
     .note{font-size:13px;color:var(--muted);margin-top:6px}
-
-    /* Set-grupper – robust mot iOS radbrytning */
     .sets{display:grid;gap:10px;margin-top:10px}
     .sets-head, .set-row{display:grid;grid-template-columns:56px 1fr 1fr 44px;gap:8px;align-items:center}
     .sets-head label{font-size:12px;color:var(--muted)}
     .set-row div{color:var(--muted)}
     .set-row input{width:100%;min-width:0;box-sizing:border-box}
     .set-row button{white-space:nowrap}
-
     .pill{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:13px;color:var(--txt);background:#1e293b;font-weight:500}
     details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
     .hint{font-size:12px;color:#9ae6ff;margin-top:6px}
@@ -62,18 +56,9 @@
     .modal.open{display:grid}
     .modal .box{background:#0b1224;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;max-width:560px;width:min(92vw,560px)}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
     @media (max-width:820px){.bar{flex-direction:column;align-items:stretch}.bar>.row{width:100%;justify-content:space-between}.bar button{flex:1 1 160px}}
-    @media (max-width:560px){
-      .wrap{padding:12px}
-      .row{gap:10px}
-      .day-btn{flex:1 1 calc(50% - 10px)}
-      .sets-head, .set-row{grid-template-columns:52px 1fr 1fr 40px}
-    }
-    @media (max-width:400px){
-      .day-btn{flex:1 1 100%}
-      .sets-head, .set-row{grid-template-columns:50px 1fr 1fr 40px}
-    }
+    @media (max-width:560px){.wrap{padding:12px}.row{gap:10px}.day-btn{flex:1 1 calc(50% - 10px)}.sets-head, .set-row{grid-template-columns:52px 1fr 1fr 40px}}
+    @media (max-width:400px){.day-btn{flex:1 1 100%}.sets-head, .set-row{grid-template-columns:50px 1fr 1fr 40px}}
   </style>
 </head>
 <body>
@@ -137,6 +122,7 @@
   </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
 // ===== Program & regler
 const PROGRAM = {
   1: [
@@ -144,7 +130,7 @@ const PROGRAM = {
     { id:'ohp', name:'Press över huvudet', range:[8,10], progression:{type:'weekly_weight', increment:1} },
     { id:'pullups', name:'Pullups', range:[5,10], progression:{type:'weekly_rep'}, bw:true,
       note:'Öka 1 rep/vecka. Ta bort band när du når 10 reps.' },
-    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultSets: 6,
+    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultSets:6,
       note:'En extra rep/vecka. Öka vikt när du klarar 15 reps.' },
   ],
   2: [
@@ -161,7 +147,7 @@ const PROGRAM = {
       note:'Öka 1 rep/vecka.' },
     { id:'ringrow', name:'Ringrodd', range:[8,15], progression:{type:'weekly_rep'}, bw:true,
       note:'Öka 1 rep/vecka. Luta dig mer bakåt när du klarar 15.' },
-    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultSets: 6,
+    { id:'tri-bi', name:'Triceps/Biceps (varannan övning)', range:[10,15], progression:{type:'weekly_rep'}, defaultSets:6,
       note:'En extra rep/vecka. Öka vikt när du klarar 15 reps.' },
   ]
 };
@@ -220,14 +206,15 @@ const h = (tag, attrs={}, ...children) => {
 // ===== Dagar
 let selectedDay = null;
 ['1','2','3'].forEach(d=>{
-  document.getElementById(`btn-day-${d}`).addEventListener('click', ()=>selectDay(Number(d)));
+  const b = document.getElementById(`btn-day-${d}`);
+  if (b) b.addEventListener('click', ()=>selectDay(Number(d)));
 });
 const selectedDayLabel = document.getElementById('selectedDayLabel');
 function selectDay(day){
   selectedDay=day;
   document.querySelectorAll('.day-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById(`btn-day-${day}`).classList.add('active');
-  selectedDayLabel.textContent = `Dag ${day}`;
+  document.getElementById(`btn-day-${day}`)?.classList.add('active');
+  if (selectedDayLabel) selectedDayLabel.textContent = `Dag ${day}`;
   renderExercises();
 }
 
@@ -235,6 +222,7 @@ function selectDay(day){
 const historyBody = document.getElementById('historyBody');
 function updateHistory(){
   const logs=readLogs();
+  if(!historyBody) return;
   if(!logs.length){ historyBody.textContent='Inget sparat ännu.'; return; }
   const recent=logs.slice(-6).reverse();
   historyBody.innerHTML='';
@@ -250,7 +238,6 @@ function updateHistory(){
     historyBody.append(box);
   });
 }
-
 function lastFor(exId){
   const logs=readLogs().slice().reverse();
   for(const l of logs){
@@ -259,9 +246,9 @@ function lastFor(exId){
   }
   return null;
 }
-
 function updateHint(ex, el){
   const last=lastFor(ex.id);
+  if(!el) return;
   if(!last){ el.textContent='Tips: logga första passet, så får du förslag nästa gång.'; return; }
   const p=ex.progression||{};
   let msg='Senast: '+ last.sets.map(s=>`${s.reps}x${s.weight||0}kg`).join(', ');
@@ -275,9 +262,10 @@ function updateHint(ex, el){
   el.textContent=msg;
 }
 
-// ===== Övningar (med viktförslag från senaste passet)
+// ===== Övningar (med viktförslag + defaultSets)
 const exercisesPanel = document.getElementById('exercisesPanel');
 function renderExercises(){
+  if(!exercisesPanel) return;
   exercisesPanel.innerHTML='';
   if(!selectedDay){
     exercisesPanel.append(h('p',{class:'empty'},'Välj en dag ovan.'));
@@ -301,7 +289,7 @@ function renderExercises(){
     const sets = h('div',{class:'sets'});
     sets.append(head);
 
-    // Hämta senaste vikter för övningen (oavsett dag)
+    // Senaste vikter
     const last = lastFor(ex.id);
     const lastWeights = (!ex.bw && last && Array.isArray(last.sets))
       ? last.sets.map(s => (s && s.weight!=null && !isNaN(Number(s.weight))) ? Number(s.weight) : null)
@@ -326,7 +314,6 @@ function renderExercises(){
       sets.append(row);
     };
 
-    // Hålla numreringen korrekt efter borttag
     function renumber(grid){
       let i=1;
       [...grid.querySelectorAll('.set-row')].forEach(r=>{
@@ -334,36 +321,9 @@ function renderExercises(){
       });
     }
 
-    // ⬇️ NYTT: använd ex.defaultSets om satt, annars 3
     const initialSets = Number(ex.defaultSets || 3);
     for (let i = 1; i <= initialSets; i++) addSetRow(i);
 
-    // Knapp för fler set
-    const addBtn = h('button',{
-      class:'ghost',
-      type:'button',
-      onclick:()=>{ addSetRow(sets.querySelectorAll('.set-row').length+1); }
-    }, '+ Lägg till set');
-
-    container.append(
-      h('div',{class:'row', style:'align-items:baseline;justify-content:space-between'}, h('div',{}, title, ' ', range), addBtn),
-      sets,
-      h('div',{class:'note'}, ex.note || ruleText(ex)),
-      hint
-    );
-
-    exercisesPanel.append(container);
-    updateHint(ex, hint);
-  });
-}
-    function renumber(grid){
-      let i=1;
-      [...grid.querySelectorAll('.set-row')].forEach(r=>{
-        r.firstChild.textContent = `#${i++}`;
-      });
-    }
-
-    for(let i=1;i<=3;i++) addSetRow(i);
     const addBtn = h('button',{class:'ghost', type:'button', onclick:()=>{ addSetRow(sets.querySelectorAll('.set-row').length+1); }}, '+ Lägg till set');
 
     container.append(
@@ -392,15 +352,15 @@ const saveBtn = document.getElementById('saveBtn');
 const syncBtn = document.getElementById('syncBtn');
 const pullBtn = document.getElementById('pullBtn');
 const cfgBtn = document.getElementById('cfgBtn');
-const clearBtn = document.getElementById('clearBtn'); // <— NY!
+const clearBtn = document.getElementById('clearBtn');
 
-dateInput.value = todayISO();
+if (dateInput) dateInput.value = todayISO();
 
-saveBtn.addEventListener('click', ()=>{
+if (saveBtn) saveBtn.addEventListener('click', ()=>{
   if(!selectedDay){ alert('Välj dag först.'); return; }
   const list=PROGRAM[selectedDay];
   const entries=[];
-  const exEls=[...exercisesPanel.querySelectorAll('.exercise')];
+  const exEls=[...document.querySelectorAll('.exercise')];
   exEls.forEach((wrap, idx)=>{
     const ex=list[idx];
     const rows=[...wrap.querySelectorAll('.set-row')];
@@ -413,7 +373,6 @@ saveBtn.addEventListener('click', ()=>{
   if(!entries.length){ alert('Fyll i minst ett set.'); return; }
   const log={ date:dateInput.value, day:selectedDay, entries };
   const logs=readLogs(); logs.push(log); writeLogs(logs); updateHistory();
-  // uppdatera hintar på aktuell dag
   PROGRAM[selectedDay].forEach(ex=>{ const el=document.getElementById(`hint-${ex.id}`); if(el) updateHint(ex, el); });
   alert('Sparat!');
 });
@@ -454,7 +413,7 @@ function mergeLogs(localArr, remoteArr){
 // GitHub sync (säker merge)
 async function doSync(){
   try{
-    loadGhCfg(); // läs sparade (inkl token)
+    loadGhCfg();
     let remote = [];
     try{
       const obj = await ghGetFile();
@@ -469,7 +428,6 @@ async function doSync(){
     alert('Synk fel: ' + e.message);
   }
 }
-
 async function doPull(){
   try{
     loadGhCfg();
@@ -487,15 +445,15 @@ async function doPull(){
   }
 }
 
-syncBtn.addEventListener('click', doSync);
-pullBtn.addEventListener('click', doPull);
+if (syncBtn) syncBtn.addEventListener('click', doSync);
+if (pullBtn) pullBtn.addEventListener('click', doPull);
 
-// ===== Rensa lokalt (NY FUNKTION)
-clearBtn.addEventListener('click', ()=>{
+// Rensa lokalt
+if (clearBtn) clearBtn.addEventListener('click', ()=>{
   if(confirm('Rensa alla lokala loggar på den här enheten? Detta tar inte bort något på GitHub.')){
     localStorage.removeItem(STORAGE_KEY);
     updateHistory();
-    exercisesPanel.innerHTML = '<p class="empty">Välj en dag ovan.</p>';
+    if (exercisesPanel) exercisesPanel.innerHTML = '<p class="empty">Välj en dag ovan.</p>';
     alert('Lokala loggar rensade. Tryck "Hämta" för att läsa in från GitHub.');
   }
 });
@@ -510,30 +468,31 @@ const ghBranch= document.getElementById('ghBranch');
 const ghPath  = document.getElementById('ghPath');
 const ghToken = document.getElementById('ghToken');
 
-cfgBtn.addEventListener('click', ()=>{
+if (cfgBtn) cfgBtn.addEventListener('click', ()=>{
   loadGhCfg();
-  ghOwner.value = GH.owner || 'Xzyrxios';
-  ghRepo.value  = GH.repo  || 'gym';
-  ghBranch.value= GH.branch|| 'main';
-  ghPath.value  = GH.path  || 'data/traningslogg.json';
-  ghToken.value = GH.token || '';
-  cfgModal.classList.add('open');
+  if (ghOwner) ghOwner.value = GH.owner || 'Xzyrxios';
+  if (ghRepo)  ghRepo.value  = GH.repo  || 'gym';
+  if (ghBranch)ghBranch.value= GH.branch|| 'main';
+  if (ghPath)  ghPath.value  = GH.path  || 'data/traningslogg.json';
+  if (ghToken) ghToken.value = GH.token || '';
+  cfgModal?.classList.add('open');
 });
-cfgClose.addEventListener('click', ()=>{ cfgModal.classList.remove('open'); });
-cfgSave.addEventListener('click', ()=>{
-  GH.owner = ghOwner.value.trim() || 'Xzyrxios';
-  GH.repo  = ghRepo.value.trim()  || 'gym';
-  GH.branch= ghBranch.value.trim()|| 'main';
-  GH.path  = ghPath.value.trim()  || 'data/traningslogg.json';
-  GH.token = ghToken.value.trim(); // lagras en gång
+if (cfgClose) cfgClose.addEventListener('click', ()=>{ cfgModal?.classList.remove('open'); });
+if (cfgSave) cfgSave.addEventListener('click', ()=>{
+  GH.owner = ghOwner?.value.trim() || 'Xzyrxios';
+  GH.repo  = ghRepo?.value.trim()  || 'gym';
+  GH.branch= ghBranch?.value.trim()|| 'main';
+  GH.path  = ghPath?.value.trim()  || 'data/traningslogg.json';
+  GH.token = ghToken?.value.trim();
   saveGhCfg();
-  cfgModal.classList.remove('open');
+  cfgModal?.classList.remove('open');
   alert('Inställningar sparade.');
 });
 
 // Init
-dateInput.value = todayISO();
+if (dateInput) dateInput.value = todayISO();
 updateHistory();
+}); // DOMContentLoaded
 </script>
 
 <script>
