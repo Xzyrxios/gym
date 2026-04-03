@@ -1,5 +1,83 @@
 [
   {
+    "date": "2025-08-18",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 6,
+            "weight": 40
+          },
+          {
+            "reps": 6,
+            "weight": 40
+          },
+          {
+            "reps": 5,
+            "weight": 40
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 25
+          },
+          {
+            "reps": 10,
+            "weight": 25
+          },
+          {
+            "reps": 8,
+            "weight": 25
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 4,
+            "weight": 3
+          },
+          {
+            "reps": 4,
+            "weight": 3
+          },
+          {
+            "reps": 4,
+            "weight": 3
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 12,
+            "weight": 10
+          },
+          {
+            "reps": 12,
+            "weight": 10
+          },
+          {
+            "reps": 12,
+            "weight": 10
+          }
+        ]
+      }
+    ]
+  },
+  {
     "date": "2025-09-15",
     "day": 1,
     "entries": [
@@ -234,7 +312,7 @@
           {
             "reps": 10,
             "weight": 8
-          }          
+          }
         ]
       },
       {
@@ -252,7 +330,7 @@
           {
             "reps": 15,
             "weight": 5
-          }          
+          }
         ]
       }
     ]
@@ -424,6 +502,2208 @@
           {
             "reps": 20,
             "weight": 12.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-08",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 9,
+            "weight": 40
+          },
+          {
+            "reps": 9,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 40
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 45
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 8,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-10",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 30
+          },
+          {
+            "reps": 8,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 40
+          }
+        ]
+      },
+      {
+        "id": "pushups",
+        "exercise": "Armhävningar",
+        "sets": [
+          {
+            "reps": 12,
+            "weight": 1
+          },
+          {
+            "reps": 12,
+            "weight": 1
+          },
+          {
+            "reps": 8,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "ringrow",
+        "exercise": "Ringrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 7,
+            "weight": 11.25
+          },
+          {
+            "reps": 18,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 7,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 7,
+            "weight": 2.5
+          },
+          {
+            "reps": 6,
+            "weight": 2.5
+          },
+          {
+            "reps": 5,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 24,
+            "weight": 12
+          },
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 24,
+            "weight": 12
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-15",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 8,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 7,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-17",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 40
+          },
+          {
+            "reps": 7,
+            "weight": 50
+          },
+          {
+            "reps": 7,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "pushups",
+        "exercise": "Armhävningar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 9,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "ringrow",
+        "exercise": "Ringrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 7,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 8,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 6,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-20",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 8,
+            "weight": 32.5
+          },
+          {
+            "reps": 9,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 7,
+            "weight": 2.5
+          },
+          {
+            "reps": 5,
+            "weight": 2.5
+          },
+          {
+            "reps": 5,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 8,
+            "weight": 13
+          },
+          {
+            "reps": 18,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-22",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-24",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 7,
+            "weight": 50
+          },
+          {
+            "reps": 7,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "pushups",
+        "exercise": "Armhävningar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 8,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "ringrow",
+        "exercise": "Ringrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 8,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 8,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-27",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 32.5
+          },
+          {
+            "reps": 10,
+            "weight": 32.5
+          },
+          {
+            "reps": 7,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 7,
+            "weight": 2.5
+          },
+          {
+            "reps": 7,
+            "weight": 2.5
+          },
+          {
+            "reps": 5,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-29",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 7,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 52.5
+          },
+          {
+            "reps": 9,
+            "weight": 52.5
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 12,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-10-31",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "pushups",
+        "exercise": "Armhävningar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "ringrow",
+        "exercise": "Ringrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-03",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 72.5
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 32.5
+          },
+          {
+            "reps": 9,
+            "weight": 32.5
+          },
+          {
+            "reps": 8,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 2.5
+          },
+          {
+            "reps": 6,
+            "weight": 2.5
+          },
+          {
+            "reps": 5,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-07",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 7,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 52.5
+          },
+          {
+            "reps": 10,
+            "weight": 52.5
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 9,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-09",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "pushups",
+        "exercise": "Armhävningar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "ringrow",
+        "exercise": "Ringrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          },
+          {
+            "reps": 10,
+            "weight": null
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-11",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 75
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 32.5
+          },
+          {
+            "reps": 9,
+            "weight": 32.5
+          },
+          {
+            "reps": 8,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 2.5
+          },
+          {
+            "reps": 6,
+            "weight": 2.5
+          },
+          {
+            "reps": 6,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-13",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 52.5
+          },
+          {
+            "reps": 8,
+            "weight": 52.5
+          },
+          {
+            "reps": 7,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 55
+          },
+          {
+            "reps": 10,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-14",
+    "day": 3,
+    "entries": [
+      {
+        "id": "squat",
+        "exercise": "Knäböj",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 7,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 7,
+            "weight": 14.75
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 24,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-14",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 60
+          },
+          {
+            "reps": 7,
+            "weight": 80
+          },
+          {
+            "reps": 7,
+            "weight": 80
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-11-24",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 80
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 9,
+            "weight": 32.5
+          },
+          {
+            "reps": 9,
+            "weight": 32.5
+          },
+          {
+            "reps": 9,
+            "weight": 32.5
+          }
+        ]
+      },
+      {
+        "id": "pullups",
+        "exercise": "Pullups",
+        "sets": [
+          {
+            "reps": 9,
+            "weight": 2.5
+          },
+          {
+            "reps": 7,
+            "weight": 2.5
+          },
+          {
+            "reps": 6,
+            "weight": 2.5
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 13
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-12-05",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 8,
+            "weight": 55
+          },
+          {
+            "reps": 7,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 55
+          },
+          {
+            "reps": 9,
+            "weight": 55
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          },
+          {
+            "reps": 10,
+            "weight": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2025-12-05",
+    "day": 3,
+    "entries": [
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 13.75
+          },
+          {
+            "reps": 10,
+            "weight": 13.75
+          },
+          {
+            "reps": 7,
+            "weight": 13.75
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 18,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-01-19",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 70
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 20
+          },
+          {
+            "reps": 8,
+            "weight": 30
+          },
+          {
+            "reps": 8,
+            "weight": 30
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 9.5
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          },
+          {
+            "reps": 9,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          },
+          {
+            "reps": 8,
+            "weight": 11.25
+          },
+          {
+            "reps": 8,
+            "weight": 12
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-01-21",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 9,
+            "weight": 45
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 9,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 9,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-01-26",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 9,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 60
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 9,
+            "weight": 30
+          },
+          {
+            "reps": 10,
+            "weight": 30
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 8,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          },
+          {
+            "reps": 8,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          },
+          {
+            "reps": 8,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-01-28",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 9,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 8,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-02-02",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 60
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 8,
+            "weight": 30
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 12
+          },
+          {
+            "reps": 9,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 9,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-02-04",
+    "day": 2,
+    "entries": [
+      {
+        "id": "bench",
+        "exercise": "Bänkpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "row",
+        "exercise": "Stångrodd",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 40
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 10,
+            "weight": 50
+          }
+        ]
+      },
+      {
+        "id": "lunge-db",
+        "exercise": "Utfall med hantlar (per ben)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 10,
+            "weight": 8
+          },
+          {
+            "reps": 8,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "lat-raise",
+        "exercise": "Sidolyft med hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-02-04",
+    "day": 3,
+    "entries": [
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 10
+          },
+          {
+            "reps": 8,
+            "weight": 20
+          },
+          {
+            "reps": 10,
+            "weight": 15
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-02-11",
+    "day": 1,
+    "entries": [
+      {
+        "id": "deadlift",
+        "exercise": "Marklyft",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 50
+          },
+          {
+            "reps": 8,
+            "weight": 60
+          },
+          {
+            "reps": 8,
+            "weight": 60
+          }
+        ]
+      },
+      {
+        "id": "ohp",
+        "exercise": "Press över huvudet",
+        "sets": [
+          {
+            "reps": 9,
+            "weight": 30
+          },
+          {
+            "reps": 10,
+            "weight": 30
+          },
+          {
+            "reps": 9,
+            "weight": 30
+          }
+        ]
+      },
+      {
+        "id": "tri-bi",
+        "exercise": "Triceps/Biceps (varannan övning)",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 7,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
+          },
+          {
+            "reps": 10,
+            "weight": 11.25
+          },
+          {
+            "reps": 20,
+            "weight": 14
           }
         ]
       }
