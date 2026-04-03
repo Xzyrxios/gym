@@ -2743,5 +2743,174 @@
       }
     ],
     "program": 2
+  },
+  {
+    "date": "2026-04-02",
+    "program": 1,
+    "day": 1,
+    "entries": [
+      {
+        "id": "prog1-standing-cable-row",
+        "exercise": "Stående rodd med rep",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 21.25
+          },
+          {
+            "reps": 10,
+            "weight": 21.25
+          },
+          {
+            "reps": 10,
+            "weight": 21.25
+          }
+        ]
+      },
+      {
+        "id": "prog1-triceps-press",
+        "exercise": "Triceps press",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 18.75
+          },
+          {
+            "reps": 10,
+            "weight": 18.75
+          },
+          {
+            "reps": 10,
+            "weight": 18.75
+          }
+        ]
+      },
+      {
+        "id": "prog1-leg-press",
+        "exercise": "Benpress",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 85
+          },
+          {
+            "reps": 10,
+            "weight": 85
+          },
+          {
+            "reps": 10,
+            "weight": 85
+          }
+        ]
+      },
+      {
+        "id": "prog1-forearm-1",
+        "exercise": "Underarm 1",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      },
+      {
+        "id": "prog1-forearm-2",
+        "exercise": "Underarm 2",
+        "sets": [
+          {
+            "reps": 12,
+            "weight": 8
+          },
+          {
+            "reps": 12,
+            "weight": 8
+          },
+          {
+            "reps": 12,
+            "weight": 8
+          }
+        ]
+      },
+      {
+        "id": "prog1-close-lat-pulldown",
+        "exercise": "Latsdrag smal",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 18.25
+          },
+          {
+            "reps": 10,
+            "weight": 18.25
+          },
+          {
+            "reps": 10,
+            "weight": 18.25
+          }
+        ]
+      },
+      {
+        "id": "prog1-barbell-biceps-curl",
+        "exercise": "Biceps curl stång",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 7.5
+          },
+          {
+            "reps": 10,
+            "weight": 7.5
+          },
+          {
+            "reps": 10,
+            "weight": 7.5
+          }
+        ]
+      },
+      {
+        "id": "prog1-flies",
+        "exercise": "Flies",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          },
+          {
+            "reps": 10,
+            "weight": 5
+          }
+        ]
+      },
+      {
+        "id": "prog1-dumbbell-shrugs",
+        "exercise": "Shrugs hantlar",
+        "sets": [
+          {
+            "reps": 10,
+            "weight": 20
+          },
+          {
+            "reps": 10,
+            "weight": 20
+          },
+          {
+            "reps": 10,
+            "weight": 20
+          }
+        ]
+      }
+    ]
   }
 ]
