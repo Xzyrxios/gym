@@ -1,5 +1,5 @@
 // sw.js — minimal och säker
-const CACHE_NAME = 'traning-v5-2025-09-16';
+const CACHE_NAME = 'traning-v6-2025-09-16';
 const ASSETS = [
   // Lägg bara filer här som verkligen finns!
   './manifest.webmanifest',
