@@ -60,6 +60,7 @@ h2 {
   flex-wrap: wrap;
 }
 
+.program-btn,
 .day-btn {
   flex: 1 1 160px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -76,18 +77,21 @@ h2 {
   font-size: 16px;
 }
 
+.program-btn:hover,
 .day-btn:hover {
   transform: translateY(-1px);
   border-color: var(--accent);
   background: #162038;
 }
 
+.program-btn.active,
 .day-btn.active {
   outline: 2px solid var(--accent);
   background: #1c273d;
   color: #fff;
 }
 
+.program-btn:focus-visible,
 .day-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -112,7 +116,8 @@ input[type="number"],
 input[type="date"],
 input[type="password"],
 input[type="text"],
-select {
+select,
+textarea {
   background: #0b1224;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
@@ -125,8 +130,15 @@ select {
   transition: border-color 0.15s ease;
 }
 
+textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -138,6 +150,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -183,6 +196,10 @@ button.ghost {
 button.ghost:hover {
   background: rgba(255, 255, 255, 0.05);
   box-shadow: none;
+}
+
+button.loading {
+  color: transparent;
 }
 
 button.loading::after {
@@ -361,6 +378,7 @@ details summary:hover {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   z-index: 1001;
   animation: slideIn 0.3s ease;
+  max-width: min(90vw, 420px);
 }
 
 .toast.success {
@@ -388,12 +406,12 @@ details summary:hover {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .bar > .row {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .bar button {
     flex: 1 1 160px;
   }
@@ -403,26 +421,39 @@ details summary:hover {
   .wrap {
     padding: 12px;
   }
-  
+
   .row {
     gap: 10px;
   }
-  
+
+  .program-btn,
   .day-btn {
     flex: 1 1 calc(50% - 10px);
   }
-  
+
   .sets-head,
   .set-row {
     grid-template-columns: 52px 1fr 1fr 40px;
   }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toast {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
 }
 
 @media (max-width: 400px) {
+  .program-btn,
   .day-btn {
     flex: 1 1 100%;
   }
-  
+
   .sets-head,
   .set-row {
     grid-template-columns: 50px 1fr 1fr 40px;
@@ -435,13 +466,17 @@ details summary:hover {
     background: white;
     color: black;
   }
-  
+
   .card {
     border: 1px solid #ccc;
     box-shadow: none;
+    backdrop-filter: none;
+    background: white;
   }
-  
-  button {
-    display: none;
+
+  button,
+  .toast,
+  .modal {
+    display: none !important;
   }
 }

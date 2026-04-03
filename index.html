@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Träningslogg – 3-dagarsprogram</title>
+  <title>Träningslogg – Program</title>
 
-  <!-- PWA & iOS-app meta -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
@@ -14,38 +13,53 @@
   <meta name="apple-mobile-web-app-title" content="Träning">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
-  
-  <!-- Styles -->
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="wrap">
     <div style="margin-bottom:12px">
-      <a href="stats.html" class="button" style="background:var(--accent);color:#001018;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:600">📊 Statistik</a>
+      <a
+        href="stats.html"
+        class="button"
+        style="background:var(--accent);color:#001018;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:600"
+      >
+        📊 Statistik
+      </a>
     </div>
 
     <div class="card">
-      <h1>Träningslogg <span class="muted">– 3 dagar</span></h1>
-      <p class="muted">Välj dag, logga set/reps/vikt. Allt sparas lokalt. Du kan även <b>synka till GitHub</b>.</p>
+      <h1>Träningslogg <span class="muted">– program</span></h1>
+      <p class="muted">
+        Välj program och dag, logga set/reps/vikt. Allt sparas lokalt.
+        Du kan även <b>synka till GitHub</b>.
+      </p>
+
+      <div class="row" id="programButtons" style="margin-bottom:10px;flex-wrap:wrap">
+        <button class="program-btn" id="btn-program-1" type="button">Följ Program 1</button>
+        <button class="program-btn active" id="btn-program-2" type="button">Följ Program 2</button>
+      </div>
 
       <div class="row" id="dayButtons">
-        <button class="day-btn" id="btn-day-1">Dag 1</button>
-        <button class="day-btn" id="btn-day-2">Dag 2</button>
-        <button class="day-btn" id="btn-day-3">Dag 3</button>
+        <button class="day-btn" id="btn-day-1" type="button">Dag 1</button>
+        <button class="day-btn" id="btn-day-2" type="button">Dag 2</button>
+        <button class="day-btn" id="btn-day-3" type="button">Dag 3</button>
       </div>
 
       <div class="bar">
         <div class="row" style="align-items:center;gap:8px;flex-wrap:wrap">
           <label for="date" class="muted" style="flex:0 0 auto">Datum</label>
-          <input id="date" type="date" style="flex:0 1 auto"/>
+          <input id="date" type="date" style="flex:0 1 auto" />
+          <span id="selectedProgramLabel" class="pill">Program 2</span>
           <span id="selectedDayLabel" class="pill">Ingen dag vald</span>
         </div>
+
         <div class="row" style="flex-wrap:wrap;gap:6px">
-          <button id="saveBtn">Spara</button>
-          <button id="syncBtn" class="ghost">Synka</button>
-          <button id="clearBtn" class="ghost">Rensa lokalt</button>
-          <button id="pullBtn" class="ghost">Hämta</button>
-          <button id="cfgBtn" class="ghost">Inställningar</button>
+          <button id="saveBtn" type="button">Spara</button>
+          <button id="syncBtn" class="ghost" type="button">Synka</button>
+          <button id="clearBtn" class="ghost" type="button">Rensa lokalt</button>
+          <button id="pullBtn" class="ghost" type="button">Hämta</button>
+          <button id="cfgBtn" class="ghost" type="button">Inställningar</button>
         </div>
       </div>
     </div>
@@ -60,28 +74,30 @@
     </div>
   </div>
 
-  <!-- Inställningar -->
   <div class="modal" id="cfgModal" aria-hidden="true">
     <div class="box">
       <h2 style="margin:0 0 8px;font-size:18px">GitHub-inställningar</h2>
+
       <div class="grid">
-        <label>Ägare <input id="ghOwner" type="text"/></label>
-        <label>Repo <input id="ghRepo" type="text"/></label>
-        <label>Branch <input id="ghBranch" type="text"/></label>
-        <label>Sökväg <input id="ghPath" type="text"/></label>
-        <label style="grid-column:1/-1">Token <input id="ghToken" type="password" placeholder="ghp_xxx..."/></label>
+        <label>Ägare <input id="ghOwner" type="text" /></label>
+        <label>Repo <input id="ghRepo" type="text" /></label>
+        <label>Branch <input id="ghBranch" type="text" /></label>
+        <label>Sökväg <input id="ghPath" type="text" /></label>
+        <label style="grid-column:1/-1">
+          Token
+          <input id="ghToken" type="password" placeholder="ghp_xxx..." />
+        </label>
       </div>
+
       <div class="row" style="justify-content:flex-end;margin-top:12px;gap:8px">
-        <button id="cfgSave">Spara</button>
-        <button id="cfgClose" class="ghost">Stäng</button>
+        <button id="cfgSave" type="button">Spara</button>
+        <button id="cfgClose" class="ghost" type="button">Stäng</button>
       </div>
     </div>
   </div>
 
-  <!-- Application JavaScript -->
   <script src="app.js" defer></script>
 
-  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -89,6 +105,5 @@
       });
     }
   </script>
-
 </body>
 </html>
